@@ -1,0 +1,60 @@
+﻿@model CosmeticShopAPI.Models.AuditLog
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>AuditLog</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.UserName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.UserName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.TableName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.TableName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ActionType)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.ActionType)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.OldData)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.OldData)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.NewData)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.NewData)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.TimestampMl)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.TimestampMl)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.User)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.User.IdUser)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.IdLog">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "3ZGCcgcrt+YPyPzpmbHiuE1iGhc3cZM/FbTa2QxmHG0=",
+  "Source": "CosmeticShopAPI",
+  "BasePath": "_content/CosmeticShopAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

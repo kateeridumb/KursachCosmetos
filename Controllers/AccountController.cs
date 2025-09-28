@@ -21,7 +21,6 @@ namespace CosmeticShopWeb.Controllers
         {
             return View();
         }
-
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
@@ -36,9 +35,9 @@ namespace CosmeticShopWeb.Controllers
                 Email = model.Email,
                 Password = model.Password,
                 Phone = model.Phone,
-                RoleUs = model.RoleUs,       
-                StatusUs = model.StatusUs,   
-                Gender = model.Gender        
+                RoleUs = model.RoleUs,
+                StatusUs = model.StatusUs,
+                Gender = model.Gender
             };
 
             var json = JsonSerializer.Serialize(dto);
@@ -54,8 +53,8 @@ namespace CosmeticShopWeb.Controllers
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                ModelState.AddModelError("", $"Ошибка регистрации: {response.StatusCode}, ответ API: {error}");
 
+                ModelState.AddModelError("", error);
                 return View(model);
             }
         }

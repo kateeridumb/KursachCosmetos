@@ -4,22 +4,33 @@
     ViewData["Title"] = "Вход";
 }
 
-<h2>Вход</h2>
+<link rel="stylesheet" href="~/css/login.css" />
 
-<form asp-action="Login" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="login-container">
+    <div class="login-card">
+        <h2 class="title">Вход в аккаунт</h2>
+        <p class="subtitle">Добро пожаловать! Введите свои данные для входа ✨</p>
 
-    <div class="form-group">
-        <label asp-for="Username"></label>
-        <input asp-for="Username" class="form-control" />
-        <span asp-validation-for="Username" class="text-danger"></span>
+        <form asp-action="Login" method="post" id="loginForm">
+            <div class="form-group">
+                <label asp-for="Username">Электронная почта</label>
+                <input asp-for="Username" class="form-control" type="email" placeholder="Введите Email" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password">Пароль</label>
+                <input asp-for="Password" class="form-control" type="password" placeholder="Введите пароль" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn-login">Войти</button>
+
+            <p class="login-footer">Нет аккаунта? <a asp-controller="Account" asp-action="Register">Зарегистрироваться</a></p>
+        </form>
     </div>
+</div>
 
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-success">Войти</button>
-</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

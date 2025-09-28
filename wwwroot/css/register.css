@@ -1,0 +1,209 @@
+﻿body {
+    background: linear-gradient(135deg, #fce4ec, #f8bbd0, #f48fb1);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.register-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    padding: 40px;
+    width: 450px;
+    animation: fadeIn 0.8s ease;
+}
+
+.title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #d81b60;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #6a1b9a;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: 600;
+    color: #880e4f;
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 1px solid #f48fb1;
+    padding: 10px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: #d81b60;
+        box-shadow: 0 0 8px rgba(216, 27, 96, 0.4);
+    }
+
+.btn-submit {
+    width: 100%;
+    background: linear-gradient(90deg, #ec407a, #d81b60);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(216,27,96,0.4);
+    }
+
+.alert {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+    border-radius: 10px;
+    color: #842029;
+    font-size: 14px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.step {
+    display: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+    .step.active {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+.buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    justify-content: flex-end;
+}
+
+.btn-next, .btn-prev, .btn-submit {
+    background: #fff;
+    color: #d81b60;
+    border: 2px solid #d81b60;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+    .btn-next:hover, .btn-prev:hover, .btn-submit:hover {
+        background: #d81b60;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(216,27,96,0.18);
+    }
+
+.btn-prev {
+    background: transparent;
+    color: #6a1b9a;
+    border: 2px solid #6a1b9a;
+}
+
+    .btn-prev:hover {
+        background: #6a1b9a;
+        color: #fff;
+    }
+
+.progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.progress {
+    height: 8px;
+    background: #ffe6f0;
+    border-radius: 20px;
+    overflow: hidden;
+    flex: 1;
+}
+
+    .progress > .bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #ec407a, #d81b60);
+        transition: width 0.25s ease;
+    }
+
+.progress-text {
+    min-width: 90px;
+    font-size: 14px;
+    color: #880e4f;
+    font-weight: 600;
+}
+
+.step .btn-next {
+    margin-top: 12px;
+}
+
+.text-danger {
+    margin-top: 5px;
+    font-size: 13px;
+    color: #880e4f;
+    background: #f8bbd0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    animation: fadeIn 0.3s ease;
+}
+
+
+@media (max-width: 520px) {
+    .register-card {
+        width: 92%;
+        padding: 28px;
+    }
+
+    .buttons {
+        justify-content: stretch;
+    }
+
+    .btn-next, .btn-prev, .btn-submit {
+        width: 100%;
+    }
+
+    .progress-text {
+        display: none;
+    }
+}
+

@@ -4,97 +4,255 @@
     ViewData["Title"] = "Регистрация";
 }
 
-<h2>Регистрация</h2>
+<link rel="stylesheet" href="~/css/register.css" />
 
-<form asp-action="Register" method="post">
-
-
-    <div class="form-group">
-        <label asp-for="LastName"></label>
-        <input asp-for="LastName" class="form-control" />
-        <span asp-validation-for="LastName" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="FirstName"></label>
-        <input asp-for="FirstName" class="form-control" />
-        <span asp-validation-for="FirstName" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="MiddleName"></label>
-        <input asp-for="MiddleName" class="form-control" />
-        <span asp-validation-for="MiddleName" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" type="email" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Phone"></label>
-        <input asp-for="Phone" class="form-control" />
-        <span asp-validation-for="Phone" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword" class="form-control" type="password" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Gender"></label>
-        <select asp-for="Gender" class="form-control">
-            <option value="">-- Выберите пол --</option>
-            <option value="Мужской">Мужской</option>
-            <option value="Женский">Женский</option>
-        </select>
-        <span asp-validation-for="Gender" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="RoleUs"></label>
-        <select asp-for="RoleUs" class="form-control">
-            <option value="Клиент">Клиент</option>
-            <option value="Менеджер">Менеджер</option>
-            <option value="Администратор">Администратор</option>
-        </select>
-        <span asp-validation-for="RoleUs" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="StatusUs"></label>
-        <select asp-for="StatusUs" class="form-control">
-            <option value="Активен">Активен</option>
-            <option value="Заблокирован">Заблокирован</option>
-        </select>
-        <span asp-validation-for="StatusUs" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
-    @if (ViewData.ModelState.ErrorCount > 0)
-    {
-        <div class="alert alert-danger">
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-            {
-                <div>@error.ErrorMessage</div>
-            }
-        </div>
+<style>
+    .error-hidden {
+        display: none !important;
     }
 
-</form>
+    .step:first-child .form-row {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .step:first-child .input-with-error {
+        flex: 1;
+    }
+
+    .step:first-child .btn-next {
+        margin-top: 0;
+        align-self: flex-start;
+    }
+
+    .validation-summary-errors {
+        background: #ffebee;
+        border: 1px solid #f5c2c7;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        color: #842029;
+        font-size: 14px;
+    }
+
+    .validation-summary-errors ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+</style>
+
+<div class="register-container">
+    <div class="register-card">
+        <h2 class="title">Создать аккаунт</h2>
+        <p class="subtitle">Заполните форму, чтобы стать частью нашего косметического сообщества ✨</p>
+      <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+        <div class="progress-wrap">
+            <div class="progress" aria-hidden="true">
+                <div class="bar"></div>
+            </div>
+            <div class="progress-text" id="progressText">Шаг 1 из 8</div>
+        </div>
+
+        <form asp-action="Register" method="post" id="registerForm">
+
+                <div class="step">
+                    <label for="LastName">Фамилия</label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger error-hidden"></span>
+                    <button type="button" class="btn-next" style="display: block;">Далее</button>
+                </div>
+
+            <div class="step">
+                <label for="FirstName">Имя</label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger error-hidden"></span>
+                <div class="buttons">
+                    <button type="button" class="btn-prev">Назад</button>
+                    <button type="button" class="btn-next">Далее</button>
+                </div>
+            </div>
+
+            <div class="step">
+                <label for="MiddleName">Отчество</label>
+                <input asp-for="MiddleName" class="form-control" />
+                <span asp-validation-for="MiddleName" class="text-danger error-hidden"></span>
+                <div class="buttons">
+                    <button type="button" class="btn-prev">Назад</button>
+                    <button type="button" class="btn-next">Далее</button>
+                </div>
+            </div>
+
+            <div class="step">
+                <label for="Email">Электронная почта</label>
+                <input asp-for="Email" class="form-control" type="email" />
+                <span asp-validation-for="Email" class="text-danger error-hidden"></span>
+                <div class="buttons">
+                    <button type="button" class="btn-prev">Назад</button>
+                    <button type="button" class="btn-next">Далее</button>
+                </div>
+            </div>
+
+            <div class="step">
+                <label for="Phone">Телефон</label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger error-hidden"></span>
+                <div class="buttons">
+                    <button type="button" class="btn-prev">Назад</button>
+                    <button type="button" class="btn-next">Далее</button>
+                </div>
+            </div>
+
+            <div class="step">
+                <label for="Password">Пароль</label>
+                <input asp-for="Password" class="form-control" type="password" />
+                <span asp-validation-for="Password" class="text-danger error-hidden"></span>
+                <div class="buttons">
+                    <button type="button" class="btn-prev">Назад</button>
+                    <button type="button" class="btn-next">Далее</button>
+                </div>
+            </div>
+
+            <div class="step">
+                <label for="ConfirmPassword">Подтверждение пароля</label>
+                <input asp-for="ConfirmPassword" class="form-control" type="password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger error-hidden"></span>
+                <div class="buttons">
+                    <button type="button" class="btn-prev">Назад</button>
+                    <button type="button" class="btn-next">Далее</button>
+                </div>
+            </div>
+
+            <div class="step">
+                <label for="Gender">Пол</label>
+                <select asp-for="Gender" class="form-control">
+                    <option value="">-- Выберите пол --</option>
+                    <option value="Мужской">Мужской</option>
+                    <option value="Женский">Женский</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger error-hidden"></span>
+                <div class="buttons">
+                    <button type="button" class="btn-prev">Назад</button>
+                    <button type="submit" class="btn-submit">Зарегистрироваться</button>
+                </div>
+            </div>
+
+            <input type="hidden" asp-for="RoleUs" value="Клиент" />
+            <input type="hidden" asp-for="StatusUs" value="Активен" />
+
+        </form>
+    </div>
+</div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const steps = Array.from(document.querySelectorAll(".step"));
+            const total = steps.length;
+            let currentStep = 0;
+
+            const bar = document.querySelector(".progress > .bar");
+            const progressText = document.getElementById("progressText");
+
+            function updateProgress() {
+                const pct = Math.round(((currentStep + 1) / total) * 100);
+                if (bar) bar.style.width = pct + "%";
+                if (progressText) progressText.textContent = `Шаг ${currentStep + 1} из ${total}`;
+            }
+
+            function showStep(index) {
+                steps.forEach((step, i) => {
+                    step.classList.toggle("active", i === index);
+                });
+
+                const currentInputs = steps[index].querySelectorAll("input, select, textarea, button");
+                if (currentInputs.length) {
+                    const firstInput = Array.from(currentInputs).find(e => e.tagName !== "BUTTON");
+                    if (firstInput) {
+                        firstInput.focus({ preventScroll: true });
+                    }
+                }
+
+                updateProgress();
+            }
+
+            function toggleErrorField(input) {
+                const fieldName = input.name;
+                const errorSpan = input.closest('.step').querySelector(`[data-valmsg-for="${fieldName}"]`);
+
+                if (!errorSpan) return;
+
+                if (!$(input).valid()) {
+                    errorSpan.classList.remove('error-hidden');
+                } else {
+                    errorSpan.classList.add('error-hidden');
+                }
+            }
+
+            steps.forEach(step => {
+                step.querySelectorAll("input, select, textarea").forEach(field => {
+                    field.addEventListener("blur", function() {
+                        toggleErrorField(this);
+                    });
+
+                    field.addEventListener("input", function() {
+                        toggleErrorField(this);
+                    });
+
+                    field.addEventListener("change", function() {
+                        toggleErrorField(this);
+                    });
+                });
+            });
+
+            document.querySelectorAll(".btn-next").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const currentInputs = steps[currentStep].querySelectorAll("input, select, textarea");
+                    let isValid = true;
+
+                    currentInputs.forEach(input => {
+                        toggleErrorField(input);
+                        if (!$(input).valid()) {
+                            isValid = false;
+                        }
+                    });
+
+                    if (!isValid) {
+                        return;
+                    }
+
+                    if (currentStep < steps.length - 1) {
+                        currentStep++;
+                        showStep(currentStep);
+                    }
+                });
+            });
+
+            document.querySelectorAll(".btn-prev").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    if (currentStep > 0) {
+                        currentStep--;
+                        showStep(currentStep);
+                    }
+                });
+            });
+
+            const form = document.getElementById("registerForm");
+            if (form) {
+                form.addEventListener("submit", (e) => {
+                });
+            }
+
+            const errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                setTimeout(() => {
+                    errorAlert.style.display = 'none';
+                }, 5000);
+            }
+
+            showStep(currentStep);
+        });
+    </script>
 }

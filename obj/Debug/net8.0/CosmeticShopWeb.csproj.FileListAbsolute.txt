@@ -31,3 +31,4 @@ C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\refint\CosmeticShopWe
 C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\CosmeticShopWeb.pdb
 C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\CosmeticShopWeb.genruntimeconfig.cache
 C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\ref\CosmeticShopWeb.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\CosmeticShopWeb.sourcelink.json

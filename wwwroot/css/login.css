@@ -1,0 +1,110 @@
+﻿body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f7d9e3, #fce4ec);
+    margin: 0;
+}
+
+/* Центрируем карточку */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 0px); /* чтобы header/footer не сдвигались */
+    padding: 20px;
+}
+
+/* Карточка входа */
+.login-card {
+    background: #fff;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+    width: 380px;
+    max-width: 100%;
+    text-align: center;
+}
+
+/* Заголовки */
+.title {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #d81b60;
+}
+
+.subtitle {
+    font-size: 14px;
+    margin-bottom: 30px;
+    color: #555;
+}
+
+/* Поля формы */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+    }
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: #d81b60;
+        box-shadow: 0 0 5px rgba(216, 27, 96, 0.5);
+        outline: none;
+    }
+
+/* Кнопка входа */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: #d81b60;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+    .btn-login:hover {
+        background: #c2185b;
+        transform: scale(1.03);
+    }
+
+/* Ссылка на регистрацию */
+.login-footer {
+    margin-top: 15px;
+    font-size: 13px;
+    text-align: center;
+}
+
+    .login-footer a {
+        color: #d81b60;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .login-footer a:hover {
+            color: #c2185b;
+            text-decoration: underline;
+        }
+
+/* Ошибки */
+.text-danger {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}

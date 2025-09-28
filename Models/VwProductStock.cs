@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CosmeticShopAPI.Models;
 
 public partial class VwProductStock
 {
+    [Key]
     public int КодТовара { get; set; }
 
     public string НазваниеТовара { get; set; } = null!;

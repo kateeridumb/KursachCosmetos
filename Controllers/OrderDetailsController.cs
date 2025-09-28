@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CosmeticShopAPI.DTOs;
+using CosmeticShopAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CosmeticShopAPI.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CosmeticShopAPI.Controllers
 {
@@ -18,92 +19,99 @@ namespace CosmeticShopAPI.Controllers
             _context = context;
         }
 
-        // GET: api/OrderDetails
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<OrderDetail>>> GetOrderDetails()
+        public async Task<ActionResult<IEnumerable<OrderDetailDTO>>> GetOrderDetails()
         {
-            return await _context.OrderDetails
-                .Include(o => o.Order)
-                .Include(o => o.Product)
-                .ToListAsync();
+            var orderDetails = await _context.OrderDetails.ToListAsync();
+
+            var dtos = orderDetails.Select(od => new OrderDetailDTO
+            {
+                IdOrderDetail = od.Id_OrderDetail,
+                OrderId = od.OrderID,
+                ProductId = od.ProductID,
+                Quantity = od.Quantity,
+                Price = od.Price
+            }).ToList();
+
+            return Ok(dtos);
         }
 
-        // GET: api/OrderDetails/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrderDetail>> GetOrderDetail(int id)
+        public async Task<ActionResult<OrderDetailDTO>> GetOrderDetail(int id)
         {
-            var orderDetail = await _context.OrderDetails
+            var od = await _context.OrderDetails
                 .Include(o => o.Order)
                 .Include(o => o.Product)
-                .FirstOrDefaultAsync(m => m.IdOrderDetail == id);
+                .FirstOrDefaultAsync(od => od.Id_OrderDetail == id);
 
-            if (orderDetail == null)
-            {
+            if (od == null)
                 return NotFound();
-            }
 
-            return orderDetail;
+            var dto = new OrderDetailDTO
+            {
+                IdOrderDetail = od.Id_OrderDetail,
+                OrderId = od.OrderID,
+                ProductId = od.ProductID,
+                Quantity = od.Quantity,
+                Price = od.Price
+            };
+
+            return Ok(dto);
         }
 
-        // POST: api/OrderDetails
         [HttpPost]
-        public async Task<ActionResult<OrderDetail>> PostOrderDetail(OrderDetail orderDetail)
+        public async Task<ActionResult<OrderDetailDTO>> PostOrderDetail(OrderDetailDTO dto)
         {
-            _context.OrderDetails.Add(orderDetail);
-            await _context.SaveChangesAsync();
+            var insertSql = @"
+        INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Price)
+        VALUES ({0}, {1}, {2}, {3})";
+            await _context.Database.ExecuteSqlRawAsync(insertSql,
+                dto.OrderId, dto.ProductId, dto.Quantity, dto.Price);
 
-            return CreatedAtAction(nameof(GetOrderDetail), new { id = orderDetail.IdOrderDetail }, orderDetail);
+            var newId = await _context.OrderDetails
+                .OrderByDescending(od => od.Id_OrderDetail)
+                .Select(od => od.Id_OrderDetail)
+                .FirstAsync();
+
+            dto.IdOrderDetail = newId;
+
+            return CreatedAtAction(nameof(GetOrderDetail), new { id = dto.IdOrderDetail }, dto);
         }
 
-        // PUT: api/OrderDetails/5
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrderDetail(int id, OrderDetail orderDetail)
+        public async Task<IActionResult> PutOrderDetail(int id, OrderDetailDTO dto)
         {
-            if (id != orderDetail.IdOrderDetail)
-            {
-                return BadRequest();
-            }
 
-            _context.Entry(orderDetail).State = EntityState.Modified;
+            var sql = @"
+             UPDATE OrderDetails
+             SET OrderID = {0}, ProductID = {1}, Quantity = {2}, Price = {3}
+             WHERE Id_OrderDetail = {4}";
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderDetailExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql,
+                dto.OrderId,
+                dto.ProductId,
+                dto.Quantity,
+                dto.Price,
+                id);
 
-            return NoContent(); // стандарт для PUT
-        }
-
-        // DELETE: api/OrderDetails/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrderDetail(int id)
-        {
-            var orderDetail = await _context.OrderDetails.FindAsync(id);
-            if (orderDetail == null)
-            {
+            if (rows == 0)
                 return NotFound();
-            }
-
-            _context.OrderDetails.Remove(orderDetail);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool OrderDetailExists(int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrderDetail(int id)
         {
-            return _context.OrderDetails.Any(e => e.IdOrderDetail == id);
+            var sql = "DELETE FROM OrderDetails WHERE ID_OrderDetail = {0}";
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql, id);
+
+            if (rows == 0)
+                return NotFound();
+
+            return NoContent();
         }
+
     }
 }

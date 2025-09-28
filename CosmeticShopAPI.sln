@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmeticShopAPI", "CosmeticShopAPI.csproj", "{E66B7593-CF29-4D8B-8EC7-39746C62D616}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmeticShopWeb", "..\CosmeticShopWeb\CosmeticShopWeb.csproj", "{AA2CFC91-E17C-4143-994E-2F3CCCD9F3BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmeticShop.Core", "..\CosmeticShop.Core\CosmeticShop.Core.csproj", "{FE5D4BD3-8EA8-43C7-AAF0-39C89C7E935A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{E66B7593-CF29-4D8B-8EC7-39746C62D616}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E66B7593-CF29-4D8B-8EC7-39746C62D616}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E66B7593-CF29-4D8B-8EC7-39746C62D616}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA2CFC91-E17C-4143-994E-2F3CCCD9F3BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA2CFC91-E17C-4143-994E-2F3CCCD9F3BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA2CFC91-E17C-4143-994E-2F3CCCD9F3BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA2CFC91-E17C-4143-994E-2F3CCCD9F3BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE5D4BD3-8EA8-43C7-AAF0-39C89C7E935A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE5D4BD3-8EA8-43C7-AAF0-39C89C7E935A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE5D4BD3-8EA8-43C7-AAF0-39C89C7E935A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE5D4BD3-8EA8-43C7-AAF0-39C89C7E935A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CosmeticShopAPI.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using CosmeticShopAPI.DTOs;
 
 namespace CosmeticShopAPI.Controllers
 {
@@ -18,90 +18,93 @@ namespace CosmeticShopAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Images
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Image>>> GetImages()
+        public async Task<ActionResult<IEnumerable<ImageDTO>>> GetImages()
         {
-            return await _context.Images
-                .Include(i => i.Product)
-                .ToListAsync();
+            var images = await _context.Images.ToListAsync();
+
+            var imageDtos = images.Select(i => new ImageDTO
+            {
+                IdImage = i.Id_Image,
+                ProductId = i.ProductId,
+                ImageUrl = i.ImageUrl,
+                DescriptionImg = i.DescriptionImg
+            }).ToList();
+
+            return Ok(imageDtos);
         }
 
-        // GET: api/Images/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Image>> GetImage(int id)
+        public async Task<ActionResult<ImageDTO>> GetImage(int id)
         {
             var image = await _context.Images
-                .Include(i => i.Product)
-                .FirstOrDefaultAsync(m => m.IdImage == id);
+                .Where(i => i.Id_Image == id)
+                .FirstOrDefaultAsync();
 
             if (image == null)
-            {
                 return NotFound();
-            }
 
-            return image;
+            var dto = new ImageDTO
+            {
+                IdImage = image.Id_Image,
+                ProductId = image.ProductId,
+                ImageUrl = image.ImageUrl,
+                DescriptionImg = image.DescriptionImg
+            };
+
+            return Ok(dto);
         }
 
-        // POST: api/Images
+
         [HttpPost]
-        public async Task<ActionResult<Image>> PostImage(Image image)
+        public async Task<ActionResult<ImageDTO>> PostImage(ImageDTO dto)
         {
-            _context.Images.Add(image);
-            await _context.SaveChangesAsync();
+            var image = new Image
+            {
+                ProductId = dto.ProductId,
+                ImageUrl = dto.ImageUrl,
+                DescriptionImg = dto.DescriptionImg
+            };
 
-            return CreatedAtAction(nameof(GetImage), new { id = image.IdImage }, image);
+            var sql = "INSERT INTO Images (ProductId, ImageUrl, DescriptionImg) VALUES ({0}, {1}, {2})";
+            await _context.Database.ExecuteSqlRawAsync(sql, image.ProductId, image.ImageUrl, image.DescriptionImg);
+
+            var newId = await _context.Images.MaxAsync(i => i.Id_Image);
+            dto.IdImage = newId;
+
+            return CreatedAtAction(nameof(GetImage), new { id = dto.IdImage }, dto);
         }
 
-        // PUT: api/Images/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutImage(int id, Image image)
+        public async Task<IActionResult> PutImage(int id, ImageDTO dto)
         {
-            if (id != image.IdImage)
+            var image = new Image
             {
-                return BadRequest();
-            }
+                Id_Image = id,
+                ProductId = dto.ProductId,
+                ImageUrl = dto.ImageUrl,
+                DescriptionImg = dto.DescriptionImg
+            };
 
-            _context.Entry(image).State = EntityState.Modified;
+            var sql = "UPDATE Images SET ProductId = {0}, ImageUrl = {1}, DescriptionImg = {2} WHERE Id_Image = {3}";
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql, image.ProductId, image.ImageUrl, image.DescriptionImg, image.Id_Image);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ImageExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            if (rows == 0)
+                return NotFound();
 
             return NoContent();
         }
 
-        // DELETE: api/Images/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteImage(int id)
         {
-            var image = await _context.Images.FindAsync(id);
-            if (image == null)
-            {
-                return NotFound();
-            }
+            var sql = "DELETE FROM Images WHERE Id_Image = {0}";
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql, id);
 
-            _context.Images.Remove(image);
-            await _context.SaveChangesAsync();
+            if (rows == 0)
+                return NotFound();
 
             return NoContent();
-        }
-
-        private bool ImageExists(int id)
-        {
-            return _context.Images.Any(e => e.IdImage == id);
         }
     }
 }

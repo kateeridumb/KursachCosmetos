@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CosmeticShopAPI.Models;
 
 public partial class Product
 {
-    public int IdProduct { get; set; }
+    [Key]
+    public int Id_Product { get; set; }
 
-    public int CategoryId { get; set; }
+    public int CategoryID { get; set; }
 
+    [Required]
     public string NamePr { get; set; } = null!;
 
     public string? DescriptionPr { get; set; }
@@ -21,11 +23,5 @@ public partial class Product
 
     public bool IsAvailable { get; set; }
 
-    public virtual Category Category { get; set; } = null!;
 
-    public virtual ICollection<Image> Images { get; set; } = new List<Image>();
-
-    public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-
-    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

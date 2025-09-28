@@ -18,14 +18,12 @@ namespace CosmeticShopAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Categories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
             return await _context.Categories.ToListAsync();
         }
 
-        // GET: api/Categories/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetCategory(int id)
         {
@@ -39,66 +37,62 @@ namespace CosmeticShopAPI.Controllers
             return category;
         }
 
-        // POST: api/Categories
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(Category category)
         {
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
+            await SetSessionUser();
 
-            // Возвращаем 201 Created + ссылку на новый объект
-            return CreatedAtAction(nameof(GetCategory), new { id = category.IdCategory }, category);
+            var sql = "INSERT INTO Categories (NameCa, DescriptionCa) VALUES ({0}, {1});";
+            await _context.Database.ExecuteSqlRawAsync(sql, category.NameCa, category.DescriptionCa);
+
+            var newId = await _context.Categories.MaxAsync(c => c.Id_Category);
+            category.Id_Category = newId;
+
+            return CreatedAtAction(nameof(GetCategory), new { id = category.Id_Category }, category);
         }
 
-        // PUT: api/Categories/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCategory(int id, Category category)
         {
-            if (id != category.IdCategory)
-            {
-                return BadRequest();
-            }
+            if (id != category.Id_Category) return BadRequest();
 
-            _context.Entry(category).State = EntityState.Modified;
+            await SetSessionUser();
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CategoryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var sql = "UPDATE Categories SET NameCa = {0}, DescriptionCa = {1} WHERE ID_Category = {2};";
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql, category.NameCa, category.DescriptionCa, id);
 
-            return NoContent(); // стандарт для PUT
+            if (rows == 0) return NotFound();
+
+            var updated = await _context.Categories.FindAsync(id);
+            return Ok(updated);
         }
 
-        // DELETE: api/Categories/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+            await SetSessionUser();
 
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
+            var sql = "DELETE FROM Categories WHERE Id_Category = {0};";
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql, id);
+
+            if (rows == 0) return NotFound();
 
             return NoContent();
         }
 
         private bool CategoryExists(int id)
         {
-            return _context.Categories.Any(e => e.IdCategory == id);
+            return _context.Categories.Any(e => e.Id_Category == id);
+        }
+
+        private async Task SetSessionUser()
+        {
+            var userId = 1;
+            var userName = "admin";
+
+            var sql = "EXEC sp_set_session_context @key=N'UserID', @value={0}; " +
+                      "EXEC sp_set_session_context @key=N'UserName', @value={1};";
+            await _context.Database.ExecuteSqlRawAsync(sql, userId, userName);
         }
     }
 }

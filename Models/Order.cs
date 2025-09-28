@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CosmeticShopAPI.Models;
 
 public partial class Order
 {
-    public int IdOrder { get; set; }
+    [Key]
+    public int Id_Order { get; set; }
 
-    public int UserId { get; set; }
+    public int UserID { get; set; }
 
     public DateTime OrderDate { get; set; }
 
@@ -17,11 +19,8 @@ public partial class Order
 
     public string? DeliveryAddress { get; set; }
 
-    public int? PromoId { get; set; }
+    public int? PromoID { get; set; }
 
-    public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
-    public virtual PromoCode? Promo { get; set; }
 
-    public virtual User User { get; set; } = null!;
 }

@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CosmeticShop.Core.DTOs;
+using CosmeticShopAPI.DTOs;
+using CosmeticShopAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CosmeticShopAPI.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CosmeticShopAPI.Controllers
 {
@@ -18,90 +20,107 @@ namespace CosmeticShopAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts()
         {
-            return await _context.Products
-                .Include(p => p.Category)
-                .ToListAsync();
+            var products = await _context.Products.ToListAsync();
+
+            var dtos = products.Select(p => new ProductDTO
+            {
+                IdProduct = p.Id_Product,
+                CategoryId = p.CategoryID,
+                NamePr = p.NamePr,
+                DescriptionPr = p.DescriptionPr,
+                BrandPr = p.BrandPr,
+                Price = p.Price,
+                StockQuantity = p.StockQuantity,
+                IsAvailable = p.IsAvailable
+            }).ToList();
+
+            return Ok(dtos);
         }
 
-        // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductDTO>> GetProduct(int id)
         {
             var product = await _context.Products
-                .Include(p => p.Category)
-                .FirstOrDefaultAsync(m => m.IdProduct == id);
+                .FirstOrDefaultAsync(p => p.Id_Product == id);
 
             if (product == null)
-            {
                 return NotFound();
-            }
 
-            return product;
+            var dto = new ProductDTO
+            {
+                IdProduct = product.Id_Product,
+                CategoryId = product.CategoryID,
+                NamePr = product.NamePr,
+                DescriptionPr = product.DescriptionPr,
+                BrandPr = product.BrandPr,
+                Price = product.Price,
+                StockQuantity = product.StockQuantity,
+                IsAvailable = product.IsAvailable
+            };
+
+            return Ok(dto);
         }
 
-        // POST: api/Products
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            var sql = @"
+                INSERT INTO Products (CategoryID, NamePr, DescriptionPr, BrandPr, Price, StockQuantity, IsAvailable)
+                VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6})";
 
-            return CreatedAtAction(nameof(GetProduct), new { id = product.IdProduct }, product);
+            await _context.Database.ExecuteSqlRawAsync(sql,
+                product.CategoryID,
+                product.NamePr,
+                product.DescriptionPr,
+                product.BrandPr,
+                product.Price,
+                product.StockQuantity,
+                product.IsAvailable);
+
+            var newId = await _context.Products.MaxAsync(p => p.Id_Product);
+            product.Id_Product = newId;
+
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Id_Product }, product);
         }
 
-        // PUT: api/Products/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(int id, Product product)
         {
-            if (id != product.IdProduct)
-            {
-                return BadRequest();
-            }
+            var sql = @"
+                UPDATE Products
+                SET CategoryID = {0}, NamePr = {1}, DescriptionPr = {2}, BrandPr = {3}, 
+                    Price = {4}, StockQuantity = {5}, IsAvailable = {6}
+                WHERE Id_Product = {7}";
 
-            _context.Entry(product).State = EntityState.Modified;
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql,
+                product.CategoryID,
+                product.NamePr,
+                product.DescriptionPr,
+                product.BrandPr,
+                product.Price,
+                product.StockQuantity,
+                product.IsAvailable,
+                id);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent(); // стандартный ответ для PUT
-        }
-
-        // DELETE: api/Products/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
+            if (rows == 0)
                 return NotFound();
-            }
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ProductExists(int id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            return _context.Products.Any(e => e.IdProduct == id);
+            var sql = "DELETE FROM Products WHERE Id_Product = {0}";
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql, id);
+
+            if (rows == 0)
+                return NotFound();
+
+            return NoContent();
         }
     }
 }

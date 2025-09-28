@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CosmeticShopAPI.Models;
 
 public partial class UserProfile
 {
-    public int IdProfile { get; set; }
+    [Key]
+    public int Id_Profile { get; set; }
 
     public int UserId { get; set; }
 
@@ -21,5 +24,6 @@ public partial class UserProfile
 
     public string? Preferences { get; set; }
 
+    [ForeignKey(nameof(UserId))]
     public virtual User User { get; set; } = null!;
 }

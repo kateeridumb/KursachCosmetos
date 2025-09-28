@@ -18,7 +18,6 @@ namespace CosmeticShopAPI.Controllers
             _context = context;
         }
 
-        // GET: api/UserProfiles
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserProfile>>> GetUserProfiles()
         {
@@ -27,13 +26,12 @@ namespace CosmeticShopAPI.Controllers
                 .ToListAsync();
         }
 
-        // GET: api/UserProfiles/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserProfile>> GetUserProfile(int id)
         {
             var userProfile = await _context.UserProfiles
                 .Include(u => u.User)
-                .FirstOrDefaultAsync(m => m.IdProfile == id);
+                .FirstOrDefaultAsync(m => m.Id_Profile == id);
 
             if (userProfile == null)
             {
@@ -43,21 +41,19 @@ namespace CosmeticShopAPI.Controllers
             return userProfile;
         }
 
-        // POST: api/UserProfiles
         [HttpPost]
         public async Task<ActionResult<UserProfile>> PostUserProfile(UserProfile userProfile)
         {
             _context.UserProfiles.Add(userProfile);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUserProfile), new { id = userProfile.IdProfile }, userProfile);
+            return CreatedAtAction(nameof(GetUserProfile), new { id = userProfile.Id_Profile }, userProfile);
         }
 
-        // PUT: api/UserProfiles/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUserProfile(int id, UserProfile userProfile)
         {
-            if (id != userProfile.IdProfile)
+            if (id != userProfile.Id_Profile)
             {
                 return BadRequest();
             }
@@ -83,7 +79,6 @@ namespace CosmeticShopAPI.Controllers
             return NoContent();
         }
 
-        // DELETE: api/UserProfiles/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserProfile(int id)
         {
@@ -101,7 +96,7 @@ namespace CosmeticShopAPI.Controllers
 
         private bool UserProfileExists(int id)
         {
-            return _context.UserProfiles.Any(e => e.IdProfile == id);
+            return _context.UserProfiles.Any(e => e.Id_Profile == id);
         }
     }
 }

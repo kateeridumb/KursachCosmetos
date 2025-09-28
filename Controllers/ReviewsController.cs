@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CosmeticShopAPI.Models;
+using CosmeticShopAPI.DTOs;
 
 namespace CosmeticShopAPI.Controllers
 {
@@ -19,94 +20,101 @@ namespace CosmeticShopAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Reviews
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Review>>> GetReviews()
+        public async Task<ActionResult<IEnumerable<ReviewDTO>>> GetReviews()
         {
-            return await _context.Reviews
-                .Include(r => r.Product)
-                .Include(r => r.User)
+            var reviews = await _context.Reviews
                 .ToListAsync();
+
+            var dtos = reviews.Select(r => new ReviewDTO
+            {
+                IdReview = r.Id_Review,
+                ProductId = r.ProductID,
+                UserId = r.UserID,
+                Rating = r.Rating,
+                CommentRe = r.CommentRe,
+                CreatedAt = r.CreatedAt
+            }).ToList();
+
+            return Ok(dtos);
         }
 
-        // GET: api/Reviews/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Review>> GetReview(int id)
+        public async Task<ActionResult<ReviewDTO>> GetReview(int id)
         {
             var review = await _context.Reviews
-                .Include(r => r.Product)
-                .Include(r => r.User)
-                .FirstOrDefaultAsync(r => r.IdReview == id);
+                .FirstOrDefaultAsync(r => r.Id_Review == id);
 
             if (review == null)
-            {
                 return NotFound();
-            }
 
-            return review;
+            var dto = new ReviewDTO
+            {
+                IdReview = review.Id_Review,
+                ProductId = review.ProductID,
+                UserId = review.UserID,
+                Rating = review.Rating,
+                CommentRe = review.CommentRe,
+                CreatedAt = review.CreatedAt
+            };
+
+            return Ok(dto);
         }
 
-        // POST: api/Reviews
         [HttpPost]
-        public async Task<ActionResult<Review>> PostReview(Review review)
+        public async Task<ActionResult<ReviewDTO>> PostReview(ReviewDTO dto)
         {
-            review.CreatedAt = DateTime.UtcNow;
+            dto.CreatedAt = DateTime.UtcNow;
 
-            _context.Reviews.Add(review);
-            await _context.SaveChangesAsync();
+            var sql = @"
+                INSERT INTO Reviews (ProductID, UserID, Rating, CommentRe, CreatedAt)
+                VALUES ({0}, {1}, {2}, {3}, {4})";
 
-            return CreatedAtAction(nameof(GetReview), new { id = review.IdReview }, review);
+            await _context.Database.ExecuteSqlRawAsync(sql,
+                dto.ProductId,
+                dto.UserId,
+                dto.Rating,
+                dto.CommentRe,
+                dto.CreatedAt);
+
+            var newId = await _context.Reviews.MaxAsync(r => r.Id_Review);
+            dto.IdReview = newId;
+
+            return CreatedAtAction(nameof(GetReview), new { id = dto.IdReview }, dto);
         }
 
-        // PUT: api/Reviews/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutReview(int id, Review review)
+        public async Task<IActionResult> PutReview(int id, ReviewUpdateDTO dto)
         {
-            if (id != review.IdReview)
-            {
-                return BadRequest();
-            }
 
-            _context.Entry(review).State = EntityState.Modified;
+            var sql = @"
+                UPDATE Reviews
+                SET ProductID = {0}, UserID = {1}, Rating = {2}, CommentRe = {3}
+                WHERE Id_Review = {4}";
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ReviewExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql,
+                dto.ProductId,
+                dto.UserId,
+                dto.Rating,
+                dto.CommentRe,
+                id);
+
+            if (rows == 0)
+                return NotFound();
 
             return NoContent();
         }
 
-        // DELETE: api/Reviews/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReview(int id)
         {
-            var review = await _context.Reviews.FindAsync(id);
-            if (review == null)
-            {
-                return NotFound();
-            }
+            var sql = "DELETE FROM Reviews WHERE Id_Review = {0}";
+            var rows = await _context.Database.ExecuteSqlRawAsync(sql, id);
 
-            _context.Reviews.Remove(review);
-            await _context.SaveChangesAsync();
+            if (rows == 0)
+                return NotFound();
 
             return NoContent();
-        }
-
-        private bool ReviewExists(int id)
-        {
-            return _context.Reviews.Any(e => e.IdReview == id);
         }
     }
 }

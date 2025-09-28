@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CosmeticShopAPI.Models;
 
 public partial class VwProductReview
 {
+    [Key]
     public int НомерОтзыва { get; set; }
 
     public string? АвторОтзыва { get; set; }

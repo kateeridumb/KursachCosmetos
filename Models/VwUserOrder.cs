@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CosmeticShopAPI.Models;
 
 public partial class VwUserOrder
 {
+    [Key]
     public int НомерЗаказа { get; set; }
 
     public string ФиоКлиента { get; set; } = null!;

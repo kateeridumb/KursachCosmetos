@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CosmeticShopAPI.Models;
 
 public partial class User
 {
-    public int IdUser { get; set; }
+    [Key]
+    public int Id_User { get; set; }
 
     public string LastName { get; set; } = null!;
 
@@ -27,11 +29,4 @@ public partial class User
 
     public int Points { get; set; }
 
-    public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
-
-    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
-
-    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
-
-    public virtual UserProfile? UserProfile { get; set; }
 }

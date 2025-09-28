@@ -13,71 +13,90 @@ public class AuditLogsController : ControllerBase
         _context = context;
     }
 
-    // GET: api/AuditLogs
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AuditLog>>> GetAuditLogs()
     {
-        return await _context.AuditLogs.Include(a => a.User).ToListAsync();
+        var logs = await _context.AuditLogs
+            .FromSqlRaw("SELECT * FROM AuditLogs")
+            .ToListAsync();
+
+        return Ok(logs);
     }
 
-    // GET: api/AuditLogs/5
     [HttpGet("{id}")]
     public async Task<ActionResult<AuditLog>> GetAuditLog(int id)
     {
-        var auditLog = await _context.AuditLogs
-            .Include(a => a.User)
-            .FirstOrDefaultAsync(m => m.IdLog == id);
+        var log = await _context.AuditLogs
+            .FromSqlRaw("SELECT * FROM AuditLogs WHERE Id_Log = {0}", id)
+            .FirstOrDefaultAsync();
 
-        if (auditLog == null)
+        if (log == null)
             return NotFound();
 
-        return auditLog;
+        return Ok(log);
     }
 
-    // POST: api/AuditLogs
     [HttpPost]
     public async Task<ActionResult<AuditLog>> PostAuditLog(AuditLog auditLog)
     {
-        _context.AuditLogs.Add(auditLog);
-        await _context.SaveChangesAsync();
+        var sql = @"INSERT INTO AuditLogs (UserID, UserName, TableName, ActionType, OldData, NewData, TimestampMl)
+                    VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});";
 
-        return CreatedAtAction(nameof(GetAuditLog), new { id = auditLog.IdLog }, auditLog);
+        await _context.Database.ExecuteSqlRawAsync(
+            sql,
+            auditLog.UserID,
+            auditLog.UserName,
+            auditLog.TableName,
+            auditLog.ActionType,
+            auditLog.OldData,
+            auditLog.NewData,
+            auditLog.TimestampMl
+        );
+
+        var created = await _context.AuditLogs
+            .FromSqlRaw("SELECT TOP 1 * FROM AuditLogs ORDER BY Id_Log DESC")
+            .FirstOrDefaultAsync();
+
+        return CreatedAtAction(nameof(GetAuditLog), new { id = created!.Id_Log }, created);
     }
 
-    // PUT: api/AuditLogs/5
     [HttpPut("{id}")]
     public async Task<IActionResult> PutAuditLog(int id, AuditLog auditLog)
     {
-        if (id != auditLog.IdLog)
+        if (id != auditLog.Id_Log)
             return BadRequest();
 
-        _context.Entry(auditLog).State = EntityState.Modified;
+        var sql = @"UPDATE AuditLogs
+                    SET UserID = {0}, UserName = {1}, TableName = {2}, ActionType = {3},
+                        OldData = {4}, NewData = {5}, TimestampMl = {6}
+                    WHERE Id_Log = {7};";
 
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_context.AuditLogs.Any(e => e.IdLog == id))
-                return NotFound();
-            else
-                throw;
-        }
+        var affected = await _context.Database.ExecuteSqlRawAsync(
+            sql,
+            auditLog.UserID,
+            auditLog.UserName,
+            auditLog.TableName,
+            auditLog.ActionType,
+            auditLog.OldData,
+            auditLog.NewData,
+            auditLog.TimestampMl,
+            id
+        );
+
+        if (affected == 0)
+            return NotFound();
 
         return NoContent();
     }
 
-    // DELETE: api/AuditLogs/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAuditLog(int id)
     {
-        var auditLog = await _context.AuditLogs.FindAsync(id);
-        if (auditLog == null)
-            return NotFound();
+        var sql = "DELETE FROM AuditLogs WHERE Id_Log = {0}";
+        var affected = await _context.Database.ExecuteSqlRawAsync(sql, id);
 
-        _context.AuditLogs.Remove(auditLog);
-        await _context.SaveChangesAsync();
+        if (affected == 0)
+            return NotFound();
 
         return NoContent();
     }

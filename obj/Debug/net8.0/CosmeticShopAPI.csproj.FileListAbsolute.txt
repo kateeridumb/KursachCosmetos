@@ -66,12 +66,6 @@ C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\scopedcss\bundle\Cosm
 C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets\msbuild.CosmeticShopAPI.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets\msbuild.CosmeticShopAPI.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets\msbuild.build.CosmeticShopAPI.props
-C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.CosmeticShopAPI.props
-C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.CosmeticShopAPI.props
-C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets.pack.json
 C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\Cosmetic.240F1A88.Up2Date
 C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\CosmeticShopAPI.dll
 C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\refint\CosmeticShopAPI.dll
@@ -278,5 +272,10 @@ C:\Users\PRO\source\repos\CosmeticShopAPI\bin\Debug\net8.0\ru\Microsoft.CodeAnal
 C:\Users\PRO\source\repos\CosmeticShopAPI\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Scripting.resources.dll
 C:\Users\PRO\source\repos\CosmeticShopAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Scripting.resources.dll
 C:\Users\PRO\source\repos\CosmeticShopAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Scripting.resources.dll
-C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\CosmeticShopAPI.RazorAssemblyInfo.cache
-C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\CosmeticShopAPI.RazorAssemblyInfo.cs
+C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\CosmeticShopAPI.sourcelink.json
+C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\Users\PRO\source\repos\CosmeticShopAPI\obj\Debug\net8.0\staticwebassets.build.json.cache
+C:\Users\PRO\source\repos\CosmeticShopAPI\bin\Debug\net8.0\BCrypt.Net-Next.dll

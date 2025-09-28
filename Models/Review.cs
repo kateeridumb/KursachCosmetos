@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace CosmeticShopAPI.Models;
 
 public partial class Review
 {
-    public int IdReview { get; set; }
+    [Key]
+    public int Id_Review { get; set; }
 
-    public int ProductId { get; set; }
+    public int ProductID { get; set; }
 
-    public int UserId { get; set; }
+    public int UserID { get; set; }
 
     public int Rating { get; set; }
 

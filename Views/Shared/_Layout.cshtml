@@ -1,4 +1,5 @@
 ﻿<!DOCTYPE html>
+
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
@@ -7,39 +8,44 @@
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-light border-bottom box-shadow mb-3">
+    <header class="header-fixed">
+        <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">CosmeticShop</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Главная</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Products" asp-action="Index">Товары</a>
+                            <a class="nav-link" asp-controller="Products" asp-action="Index">Товары</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="About">О нас</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Регистрация</a>
+                            <a class="nav-link" asp-controller="Account" asp-action="Register">Регистрация</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Вход</a>
+                            <a class="nav-link" asp-controller="Account" asp-action="Login">Вход</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Logout">Выход</a>
+                            <a class="nav-link" asp-controller="Account" asp-action="Logout">Выход</a>
                         </li>
                     </ul>
                 </div>
@@ -47,18 +53,27 @@
         </nav>
     </header>
 
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="content-wrapper">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer-fixed">
         <div class="container">
-            &copy; @DateTime.Now.Year - CosmeticShop
+            <div class="footer-content">
+                <span class="footer-brand">CosmeticShop</span>
+                <span class="footer-copyright">&copy; @DateTime.Now.Year — Красота и уход</span>
+                <div class="footer-links">
+                    <a href="#">Instagram</a>
+                    <a href="#">Facebook</a>
+                    <a href="#">TikTok</a>
+                </div>
+            </div>
         </div>
     </footer>
 
     @RenderSection("Scripts", required: false)
+
 </body>
 </html>

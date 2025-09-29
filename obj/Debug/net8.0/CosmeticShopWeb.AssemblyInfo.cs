@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CosmeticShopWeb")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+50b741497aa3c88fdbe2bb886f2ecf1b0f0d7260")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e60240870e72e2ceb6291d35de6eaa5981dcd953")]
 [assembly: System.Reflection.AssemblyProductAttribute("CosmeticShopWeb")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CosmeticShopWeb")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

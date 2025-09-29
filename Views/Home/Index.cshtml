@@ -1,8 +1,165 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "CosmeticShop - Премиальная косметика";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<link rel="stylesheet" href="~/css/index.css" />
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Косметика, которая <span class="gradient-text">заботится</span> о вас</h1>
+        <p class="hero-subtitle">Откройте мир роскошной косметики, где каждая деталь создана для вашей красоты и уверенности</p>
+        <div class="hero-buttons">
+            <a href="/Products" class="btn-hero-primary">Каталог товаров</a>
+            <a href="/Account/Register" class="btn-hero-secondary">Присоединиться</a>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="floating-product">
+            <div class="product-card">
+                <div class="product-image"></div>
+                <div class="product-glow"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title">Почему выбирают нас</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>Премиальное качество</h3>
+                <p>Только сертифицированная косметика от мировых брендов</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚚</div>
+                <h3>Быстрая доставка</h3>
+                <p>Доставляем заказы по всему городу в течение 24 часов</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💎</div>
+                <h3>Эксклюзивные бренды</h3>
+                <p>Уникальные продукты, которых нет в других магазинах</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👑</div>
+                <h3>Персональный подход</h3>
+                <p>Консультации от профессиональных косметологов</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="categories-section">
+    <div class="container">
+        <h2 class="section-title">Популярные категории</h2>
+        <div class="categories-grid">
+            <div class="category-card">
+                <div class="category-image makeup"></div>
+                <h3>Декоративная косметика</h3>
+                <p>Помады, тени, тональные средства</p>
+                <span class="category-badge">🔥 Хит продаж</span>
+            </div>
+            <div class="category-card">
+                <div class="category-image skincare"></div>
+                <h3>Уход за кожей</h3>
+                <p>Сыворотки, кремы, средства для умывания</p>
+                <span class="category-badge">💫 Новинка</span>
+            </div>
+            <div class="category-card">
+                <div class="category-image perfume"></div>
+                <h3>Парфюмерия</h3>
+                <p>Ароматы для любого настроения</p>
+                <span class="category-badge">🌟 Премиум</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="counter-section">
+    <div class="counter-grid">
+        <div class="counter-item">
+            <span class="counter-number" data-count="10000">0</span>
+            <div class="counter-label">Довольных клиентов</div>
+        </div>
+        <div class="counter-item">
+            <span class="counter-number" data-count="500">0</span>
+            <div class="counter-label">Товаров в каталоге</div>
+        </div>
+        <div class="counter-item">
+            <span class="counter-number" data-count="50">0</span>
+            <div class="counter-label">Брендов</div>
+        </div>
+        <div class="counter-item">
+            <span class="counter-number" data-count="3">0</span>
+            <div class="counter-label">Года на рынке</div>
+        </div>
+    </div>
+</section>
+
+<section class="testimonials-section">
+    <h2 class="section-title">Отзывы наших клиентов</h2>
+    <div class="testimonial-slider">
+        <div class="testimonial-card">
+            <p class="testimonial-text">"Потрясающий сервис и качественная косметика! Ни разу не пожалела, что выбрала этот магазин."</p>
+            <div class="testimonial-author">— Анна, 28 лет</div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Готовы начать путь к совершенству?</h2>
+            <p>Присоединяйтесь к нашему сообществу и получите скидку 15% на первый заказ</p>
+            <div class="cta-buttons">
+                <a href="/Account/Register" class="btn-cta-primary">Начать сейчас</a>
+                <a href="/Products" class="btn-cta-secondary">Смотреть каталог</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="particles-container" id="particles"></div>
+
+
+<script>
+    function animateCounters() {
+        const counters = document.querySelectorAll('.counter-number');
+        counters.forEach(counter => {
+            const target = +counter.getAttribute('data-count');
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    counter.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current);
+                }
+            }, 16);
+        });
+    }
+
+    function createParticles() {
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.width = Math.random() * 20 + 10 + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        createParticles();
+        setTimeout(animateCounters, 1000);
+    });
+</script>

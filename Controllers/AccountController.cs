@@ -87,7 +87,7 @@ namespace CosmeticShopWeb.Controllers
                 else
                 {
                     var error = await response.Content.ReadAsStringAsync();
-                    ModelState.AddModelError("", $"Ошибка входа: {response.StatusCode}, ответ API: {error}");
+                    ModelState.AddModelError("", $"Ошибка входа: {error}");
                     return View(model);
                 }
             }

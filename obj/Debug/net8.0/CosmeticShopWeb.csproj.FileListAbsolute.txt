@@ -32,3 +32,6 @@ C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\CosmeticShopWeb.pdb
 C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\CosmeticShopWeb.genruntimeconfig.cache
 C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\ref\CosmeticShopWeb.dll
 C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\CosmeticShopWeb.sourcelink.json
+C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\CosmeticShopWeb.csproj.AssemblyReference.cache
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\Cosmetic.506FDD7A.Up2Date

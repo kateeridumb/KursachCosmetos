@@ -1,19 +1,23 @@
-var builder = WebApplication.CreateBuilder(args);
+п»їvar builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Подключаем HttpClient для API
 builder.Services.AddHttpClient("CosmeticApi", client =>
 {
     var apiUrl = builder.Configuration["ApiSettings:BaseUrl"];
     client.BaseAddress = new Uri(apiUrl);
 });
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
-
-// Конфиг пайплайна
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -27,7 +31,8 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-// Маршрут по умолчанию
+app.UseSession();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -1,0 +1,349 @@
+﻿@model CosmeticShopWeb.Models.CartViewModel
+@{
+    ViewData["Title"] = "Корзина";
+}
+
+<link rel="stylesheet" href="~/css/cart.css" />
+
+<div class="modal-overlay" id="clearConfirmModal" style="display: none;">
+    <div class="confirm-modal">
+        <div class="modal-header">
+            <h3>🗑️ Очистка корзины</h3>
+            <button type="button" class="close-modal" onclick="closeClearConfirm()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="warning-icon">⚠️</div>
+            <h4>Вы уверены, что хотите очистить корзину?</h4>
+            <p>Все товары будут удалены. Это действие нельзя отменить.</p>
+            <div class="modal-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Товаров в корзине:</span>
+                    <span class="stat-value">@Model.Items.Count</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Общая сумма:</span>
+                    <span class="stat-value">@Model.TotalPrice.ToString("C")</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeClearConfirm()">
+                Отмена
+            </button>
+            <button type="button" class="btn-confirm" onclick="confirmClear()">
+                Да, очистить корзину
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="cart-page container mt-5">
+    <div class="cart-card">
+        <div class="cart-header">
+            <h2>🛒 Ваша корзина</h2>
+            @if (Model.Items.Any())
+            {
+                <button type="button" class="btn-clear-all" onclick="showClearConfirm()">
+                    🗑️ Очистить все
+                </button>
+            }
+        </div>
+        <div class="cart-body">
+            @if (!Model.Items.Any())
+            {
+                <div class="cart-empty">
+                    <div class="empty-icon">💤</div>
+                    <h4>Корзина пуста</h4>
+                    <p>Добавьте товары из каталога, чтобы сделать покупки</p>
+                    <div class="cart-empty-actions">
+                        <a asp-controller="Products" asp-action="Index" class="btn-cart-primary">
+                            🛍️ Перейти к покупкам
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="cart-stats">
+                    <div class="stat-badge">
+                        <span class="stat-icon">📦</span>
+                        <span>Товаров: @Model.Items.Count</span>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table cart-table align-middle text-center">
+                        <thead>
+                            <tr>
+                                <th>Товар</th>
+                                <th>Цена</th>
+                                <th>Количество</th>
+                                <th>Сумма</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr class="cart-row">
+                                    <td class="text-start">
+                                        <div class="cart-item">
+                                            <img src="@item.ImageUrl" alt="@item.Name" class="cart-item-image"
+                                                 onerror="this.src='/images/product-placeholder.png'" />
+                                            <span class="cart-item-name">@item.Name</span>
+                                        </div>
+                                    </td>
+                                    <td class="cart-price">@item.Price.ToString("C")</td>
+                                    <td>
+                                        <form asp-action="Update" method="post" class="cart-quantity-form">
+                                            <input type="hidden" name="productId" value="@item.ProductId" />
+                                            <div class="quantity-controls">
+                                                <button type="button" class="quantity-btn minus"
+                                                        onclick="changeQuantity(@item.ProductId, -1)">
+                                                    −
+                                                </button>
+                                                <input type="number" name="quantity" value="@item.Quantity" min="1"
+                                                       class="cart-quantity-input" readonly />
+                                                <button type="button" class="quantity-btn plus"
+                                                        onclick="changeQuantity(@item.ProductId, 1)">
+                                                    +
+                                                </button>
+                                            </div>
+                                            <button type="submit" class="btn-cart-update" style="display:none;">
+                                                ⟳
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <td class="cart-total">@item.Total.ToString("C")</td>
+                                    <td>
+                                        <form asp-action="Remove" method="post" class="remove-form">
+                                            <input type="hidden" name="productId" value="@item.ProductId" />
+                                            <button type="submit" class="btn-cart-remove" title="Удалить товар">
+                                                ✖
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="cart-footer">
+                    <div class="total-section">
+                        <h4 class="cart-summary">Итого: <span>@Model.TotalPrice.ToString("C")</span></h4>
+                        <p class="shipping-note">🚚 Бесплатная доставка от 2000₽</p>
+                    </div>
+                    <div class="cart-actions">
+                        <a asp-controller="Products" asp-action="Index" class="btn-cart-secondary">
+                            ← Продолжить покупки
+                        </a>
+                        <form asp-controller="Order" asp-action="Checkout" method="post">
+                            <button type="submit" class="btn-cart-primary">
+                                ✅ Оформить заказ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function changeQuantity(productId, change) {
+            const form = document.querySelector(`input[name="productId"][value="${productId}"]`).closest('form');
+            const input = form.querySelector('input[name="quantity"]');
+
+            if (!input) return;
+
+            let newQuantity = parseInt(input.value) + change;
+            if (newQuantity < 1) newQuantity = 1;
+
+            input.value = newQuantity;
+
+            const submitBtn = form.querySelector('.btn-cart-update');
+            if (submitBtn) {
+                submitBtn.click();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const removeForms = document.querySelectorAll('.remove-form');
+            removeForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const cartRow = this.closest('.cart-row');
+
+                    const removeBtn = this.querySelector('.btn-cart-remove');
+                    const originalHtml = removeBtn.innerHTML;
+                    removeBtn.innerHTML = '⏳';
+                    removeBtn.disabled = true;
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            cartRow.style.opacity = '0';
+                            cartRow.style.transform = 'translateX(100px)';
+
+                            setTimeout(() => {
+                                cartRow.remove();
+                                updateCartCount(result.cartCount);
+
+                                if (document.querySelectorAll('.cart-row').length === 0) {
+                                    location.reload();
+                                } else {
+                                    document.querySelector('.cart-summary span').textContent = result.total;
+                                   
+                                    updateCartStats(result.cartCount, result.total);
+                                }
+                            }, 300);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка удаления товара:', error);
+                        removeBtn.innerHTML = originalHtml;
+                        removeBtn.disabled = false;
+                    });
+                });
+            });
+
+            const quantityForms = document.querySelectorAll('.cart-quantity-form');
+            quantityForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const updateBtn = this.querySelector('.btn-cart-update');
+
+                    const originalText = updateBtn.innerHTML;
+                    updateBtn.innerHTML = '⏳';
+                    updateBtn.disabled = true;
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка обновления количества:', error);
+                        updateBtn.innerHTML = originalText;
+                        updateBtn.disabled = false;
+                    });
+                });
+            });
+
+            function updateCartCount(count) {
+                const cartCounter = document.querySelector('.cart-count');
+                if (cartCounter) {
+                    cartCounter.textContent = count;
+                    cartCounter.style.display = count > 0 ? 'inline' : 'none';
+                }
+            }
+
+            function updateCartStats(itemCount, totalPrice) {
+                const statBadges = document.querySelectorAll('.stat-badge');
+                if (statBadges[0]) {
+                    statBadges[0].querySelector('span:last-child').textContent = `Товаров: ${itemCount}`;
+                }
+                if (statBadges[1]) {
+                    statBadges[1].querySelector('span:last-child').textContent = `Сумма: ${totalPrice}`;
+                }
+            }
+        });
+
+        function showClearConfirm() {
+            const modal = document.getElementById('clearConfirmModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeClearConfirm() {
+            const modal = document.getElementById('clearConfirmModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function confirmClear() {
+            const confirmBtn = document.querySelector('.btn-confirm');
+            const originalText = confirmBtn.innerHTML;
+
+            confirmBtn.innerHTML = '⏳ Очистка...';
+            confirmBtn.disabled = true;
+
+            fetch('/Cart/Clear', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const modal = document.getElementById('clearConfirmModal');
+                    modal.style.opacity = '0';
+
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+
+                        const cartBody = document.querySelector('.cart-body');
+                        cartBody.style.opacity = '0.5';
+                        cartBody.style.transform = 'scale(0.95)';
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 800);
+                    }, 500);
+
+                    updateCartCount(0);
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка очистки корзины:', error);
+                confirmBtn.innerHTML = originalText;
+                confirmBtn.disabled = false;
+                alert('Ошибка при очистке корзины');
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('clearConfirmModal');
+            if (e.target === modal) {
+                closeClearConfirm();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeClearConfirm();
+            }
+        });
+
+        function updateCartCount(count) {
+            const cartCounter = document.querySelector('.cart-count');
+            if (cartCounter) {
+                cartCounter.textContent = count;
+                cartCounter.style.display = count > 0 ? 'inline' : 'none';
+            }
+        }
+    </script>
+}

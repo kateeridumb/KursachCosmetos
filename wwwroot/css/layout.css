@@ -286,7 +286,7 @@
 }
 
 main {
-    animation: fadeInUp 0.8s ease;
+    animation: fadeInUp 3s ease;
 }
 
 .btn-custom {

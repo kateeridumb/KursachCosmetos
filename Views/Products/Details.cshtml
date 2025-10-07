@@ -1,0 +1,246 @@
+﻿@model CosmeticShopWeb.Models.ProductViewModel
+
+@{
+    ViewData["Title"] = Model.NamePr;
+}
+
+<link rel="stylesheet" href="~/css/details.css" />
+
+<section class="product-hero">
+    <div class="container">
+        <div class="hero-background">
+            <div class="floating-orb orb-1"></div>
+            <div class="floating-orb orb-2"></div>
+            <div class="floating-orb orb-3"></div>
+        </div>
+
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="product-visual">
+                    <div class="main-image">
+                        <div class="product-badge @Model.StockStatusClass">
+                            @Model.StockStatus
+                        </div>
+                        <div class="product-actions">
+                            <button class="action-btn wishlist-btn" title="В избранное">
+                                <span class="heart-icon">💖</span>
+                            </button>
+                            <button class="action-btn share-btn" title="Поделиться">
+                                <span class="share-icon">📤</span>
+                            </button>
+                        </div>
+                        <div class="image-placeholder">
+                            <span class="product-icon">@Model.CategoryIcon</span>
+                            <div class="image-overlay"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="product-info">
+                    <nav class="breadcrumb">
+                        <a asp-controller="Products" asp-action="Index" class="breadcrumb-link">Каталог</a>
+                        <span class="breadcrumb-separator">/</span>
+                        <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.CategoryId" class="breadcrumb-link">@Model.CategoryName</a>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">@Model.NamePr</span>
+                    </nav>
+
+                    <h1 class="product-title">@Model.NamePr</h1>
+                    <div class="product-brand">@Model.BrandPr</div>
+
+                    <div class="price-section">
+                        <div class="current-price">@Model.FormattedPrice</div>
+                        <div class="price-badge">Лучшая цена 🏷️</div>
+                    </div>
+
+                    <div class="stock-info">
+                        <div class="stock-indicator @Model.StockStatusClass">
+                            <div class="indicator-dot"></div>
+                            <span>@Model.StockStatus</span>
+                            @if (Model.StockQuantity > 0 && Model.StockQuantity < 10)
+                            {
+                                <span class="stock-count">(осталось @Model.StockQuantity шт.)</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <div class="action-buttons">
+                            <form asp-controller="Cart" asp-action="Add" method="post" class="d-inline">
+                                <input type="hidden" name="productId" value="@Model.IdProduct" />
+                                <input type="hidden" name="name" value="@Model.NamePr" />
+                                <input type="hidden" name="price" value="@Model.Price" />
+                                <input type="hidden" name="quantity" value="1" />
+
+                                <button type="submit" class="btn-primary add-to-cart"
+                                        @(Model.IsAvailable && Model.StockQuantity > 0 ? "" : "disabled")>
+                                    <span class="btn-icon">🛒</span>
+                                    <span class="btn-text">Добавить в корзину</span>
+                                </button>
+                            </form>
+
+                            <button class="btn-secondary buy-now" @(Model.IsAvailable && Model.StockQuantity > 0 ? "" : "disabled")>
+                                <span class="btn-text">Купить сейчас</span>
+                                <span class="btn-arrow">→</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="product-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">🚚</span>
+                            <span class="meta-text">Бесплатная доставка от 2000₽</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">↩️</span>
+                            <span class="meta-text">Возврат в течение 14 дней</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">⭐</span>
+                            <span class="meta-text">Гарантия качества</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="product-details">
+    <div class="container">
+        <div class="details-tabs">
+            <div class="tabs-header">
+                <button class="tab-button active" data-tab="description">Описание</button>
+                <button class="tab-button" data-tab="specifications">Характеристики</button>
+                <button class="tab-button" data-tab="reviews">Отзывы</button>
+            </div>
+
+            <div class="tabs-content">
+                <div class="tab-pane active" id="description">
+                    <div class="description-content">
+                        <h3>О товаре</h3>
+                        <p>@Model.DescriptionPr</p>
+
+                        <div class="features-grid">
+                            <div class="feature">
+                                <span class="feature-icon">✨</span>
+                                <div class="feature-text">
+                                    <strong>Премиальное качество</strong>
+                                    <span>Использование лучших материалов</span>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">🌿</span>
+                                <div class="feature-text">
+                                    <strong>Безопасный состав</strong>
+                                    <span>Гипоаллергенные компоненты</span>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <span class="feature-icon">💎</span>
+                                <div class="feature-text">
+                                    <strong>Люкс сегмент</strong>
+                                    <span>Премиум упаковка и презентация</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="specifications">
+                    <div class="specs-grid">
+                        <div class="spec-item">
+                            <span class="spec-label">Бренд</span>
+                            <span class="spec-value">@Model.BrandPr</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Категория</span>
+                            <span class="spec-value">@Model.CategoryName @Model.CategoryIcon</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Наличие</span>
+                            <span class="spec-value @Model.StockStatusClass">@Model.StockStatus</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Код товара</span>
+                            <span class="spec-value">#@Model.IdProduct.ToString("D6")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="reviews">
+                    <div class="reviews-placeholder">
+                        <div class="placeholder-icon">💬</div>
+                        <h4>Отзывов пока нет</h4>
+                        <p>Будьте первым, кто оставит отзыв об этом товаре!</p>
+                        <button class="btn-outline">Написать отзыв</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="related-products">
+    <div class="container">
+        <div class="section-header">
+            <h2>Похожие товары</h2>
+            <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.CategoryId" class="view-all">
+                Смотреть все <span>→</span>
+            </a>
+        </div>
+
+        <div class="products-grid">
+            <div class="related-placeholder">
+                <div class="placeholder-content">
+                    <span class="placeholder-icon">🔍</span>
+                    <p>Ищем похожие товары...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
+
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            const addToCartBtn = document.querySelector('.add-to-cart');
+            addToCartBtn.addEventListener('click', function() {
+                if (!this.disabled) {
+                    const originalText = this.querySelector('.btn-text').textContent;
+                    this.querySelector('.btn-text').textContent = 'Добавлено!';
+                    this.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+
+                    setTimeout(() => {
+                        this.querySelector('.btn-text').textContent = originalText;
+                        this.style.background = '';
+                    }, 2000);
+                }
+            });
+
+            const wishlistBtn = document.querySelector('.wishlist-btn');
+            wishlistBtn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const heart = this.querySelector('.heart-icon');
+                heart.textContent = this.classList.contains('active') ? '💝' : '💖';
+            });
+        });
+    </script>
+}

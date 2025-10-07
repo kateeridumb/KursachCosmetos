@@ -34,7 +34,10 @@
                             <a class="nav-link" asp-controller="Products" asp-action="Index">Товары</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="About">О нас</a>
+                            <a class="nav-link" asp-controller="Cart" asp-action="Index">
+                                🛒 Корзина
+                                <span class="cart-count badge bg-danger" style="display: none;">0</span>
+                            </a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
@@ -65,15 +68,28 @@
                 <span class="footer-brand">CosmeticShop</span>
                 <span class="footer-copyright">&copy; @DateTime.Now.Year — Красота и уход</span>
                 <div class="footer-links">
-                    <a href="#">Instagram</a>
-                    <a href="#">Facebook</a>
-                    <a href="#">TikTok</a>
+                    <a href="#">Мяу</a>
+                    <a href="#">Ссылочка</a>
+                    <a href="#">Миу</a>
                 </div>
             </div>
         </div>
     </footer>
 
     @RenderSection("Scripts", required: false)
-
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/Cart/GetCartCount')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCounter = document.querySelector('.cart-count');
+                    if (cartCounter) {
+                        cartCounter.textContent = data.count;
+                        cartCounter.style.display = data.count > 0 ? 'inline' : 'none';
+                    }
+                });
+        });
+    </script>
 </body>
 </html>

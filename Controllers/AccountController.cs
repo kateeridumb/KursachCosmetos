@@ -43,7 +43,7 @@ namespace CosmeticShopWeb.Controllers
             var json = JsonSerializer.Serialize(dto);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _http.PostAsync("api/Users/register", content);
+            var response = await _http.PostAsync("Users/register", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -77,7 +77,7 @@ namespace CosmeticShopWeb.Controllers
 
             try
             {
-                var response = await _http.PostAsync("api/Users/login", content);
+                var response = await _http.PostAsync("Users/login", content);
 
                 if (response.IsSuccessStatusCode)
                 {

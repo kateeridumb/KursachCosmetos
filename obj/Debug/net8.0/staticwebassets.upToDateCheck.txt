@@ -1,5 +1,8 @@
+wwwroot\css\details.css
+wwwroot\css\index.css
 wwwroot\css\layout.css
 wwwroot\css\login.css
+wwwroot\css\products.css
 wwwroot\css\register.css
 wwwroot\css\site.css
 wwwroot\favicon.ico
@@ -61,4 +64,4 @@ wwwroot\lib\jquery\dist\jquery.js
 wwwroot\lib\jquery\dist\jquery.min.js
 wwwroot\lib\jquery\dist\jquery.min.map
 wwwroot\lib\jquery\LICENSE.txt
-wwwroot\css\index.css
+wwwroot\css\cart.css

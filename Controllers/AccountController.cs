@@ -126,10 +126,8 @@ namespace CosmeticShopWeb.Controllers
             if (currentUser == null)
                 return RedirectToAction("Login");
 
-            // Получаем полные данные из API
             var fullUserData = await GetFullUserData(currentUser.Id_User);
 
-            // Создаем модель профиля
             var model = new ProfileViewModel
             {
                 FirstName = fullUserData.FirstName ?? currentUser.FirstName,
@@ -157,7 +155,6 @@ namespace CosmeticShopWeb.Controllers
                 Email = currentUser.Email
             };
 
-            // Пытаемся получить дополнительные данные из API
             try
             {
                 var response = await _http.GetAsync($"Users/{currentUser.Id_User}");
@@ -196,10 +193,8 @@ namespace CosmeticShopWeb.Controllers
 
             try
             {
-                // Получаем полные данные пользователя
                 var currentUserData = await GetFullUserData(currentUser.Id_User);
 
-                // Подготавливаем данные для обновления
                 var updateData = new
                 {
                     LastName = model.LastName,
@@ -220,7 +215,6 @@ namespace CosmeticShopWeb.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Обновляем данные в куках
                     var updatedUser = new UserLoginResponse
                     {
                         Id_User = currentUser.Id_User,
@@ -265,7 +259,6 @@ namespace CosmeticShopWeb.Controllers
                 Console.WriteLine($"Ошибка при получении данных пользователя: {ex.Message}");
             }
 
-            // Возвращаем данные по умолчанию если API недоступно
             return new ApiUserResponse
             {
                 RoleUs = "Клиент",

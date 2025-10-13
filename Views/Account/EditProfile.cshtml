@@ -5,7 +5,6 @@
 }
 
 <link rel="stylesheet" href="~/css/edit-profile.css" />
-<!-- Подключаем Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <div class="edit-profile-container">
@@ -13,7 +12,6 @@
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <div class="edit-profile-card">
-                    <!-- Заголовок -->
                     <div class="edit-profile-header">
                         <h1 class="edit-profile-title">
                             <i class="fas fa-user-edit me-2"></i>Редактирование профиля
@@ -21,13 +19,10 @@
                         <p class="edit-profile-subtitle">Обновите ваши личные данные и настройки безопасности</p>
                     </div>
 
-                    <!-- Тело формы -->
                     <div class="edit-profile-body">
                         <form asp-action="EditProfile" method="post" class="profile-form" id="editProfileForm">
-                            <!-- Валидация - изначально скрыта -->
                             <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" id="validationSummary"></div>
 
-                            <!-- Основная информация -->
                             <div class="form-section">
                                 <h3 class="section-title">
                                     <i class="fas fa-user-circle"></i>Основная информация
@@ -60,7 +55,6 @@
                                 </div>
                             </div>
 
-                            <!-- Контактная информация -->
                             <div class="form-section">
                                 <h3 class="section-title">
                                     <i class="fas fa-address-book"></i>Контактная информация
@@ -83,10 +77,8 @@
                                 </div>
                             </div>
 
-                            <!-- Разделитель -->
                             <div class="form-divider"></div>
 
-                            <!-- Смена пароля -->
                             <div class="form-section">
                                 <h3 class="section-title">
                                     <i class="fas fa-lock"></i>Безопасность
@@ -116,7 +108,6 @@
                                 </div>
                             </div>
 
-                            <!-- Кнопки действий -->
                             <div class="form-actions">
                                 <button type="submit" class="btn-edit btn-save">
                                     <i class="fas fa-save"></i>Сохранить изменения
@@ -142,12 +133,10 @@
             const validationSummary = document.getElementById('validationSummary');
             const validationMessages = document.querySelectorAll('.validation-message');
 
-            // Изначально скрываем все сообщения об ошибках
             validationMessages.forEach(message => {
                 message.classList.add('d-none');
             });
 
-            // Функция для показа/скрытия ошибок
             function toggleValidationMessage(field, show) {
                 const message = field.parentElement.querySelector('.validation-message');
                 if (message) {
@@ -161,16 +150,13 @@
                 }
             }
 
-            // Валидация при вводе
             const inputs = document.querySelectorAll('.form-control');
 
             inputs.forEach(input => {
-                // При фокусе
                 input.addEventListener('focus', function() {
                     this.classList.remove('input-error', 'input-valid');
                 });
 
-                // При вводе
                 input.addEventListener('input', function() {
                     const isValid = this.checkValidity();
 
@@ -185,7 +171,6 @@
                     }
                 });
 
-                // При потере фокуса
                 input.addEventListener('blur', function() {
                     const isValid = this.checkValidity();
 
@@ -201,11 +186,9 @@
                 });
             });
 
-            // Обработка отправки формы
             form.addEventListener('submit', function(e) {
                 let hasErrors = false;
 
-                // Проверяем все поля
                 inputs.forEach(input => {
                     const isValid = input.checkValidity();
 
@@ -215,12 +198,10 @@
                     }
                 });
 
-                // Если есть ошибки, показываем summary
                 if (hasErrors) {
                     e.preventDefault();
                     validationSummary.classList.remove('d-none');
 
-                    // Прокручиваем к первой ошибке
                     const firstError = document.querySelector('.input-error');
                     if (firstError) {
                         firstError.scrollIntoView({
@@ -233,14 +214,12 @@
                 }
             });
 
-            // Показываем ошибки только после первой попытки отправки
             let formSubmitted = false;
 
             form.addEventListener('submit', function() {
                 formSubmitted = true;
             });
 
-            // Анимация появления полей
             const formGroups = document.querySelectorAll('.form-group');
             formGroups.forEach((group, index) => {
                 group.style.opacity = '0';
@@ -253,7 +232,6 @@
                 }, 100);
             });
 
-            // Обработка серверных ошибок (если форма была отправлена и вернулась с ошибками)
             @if (ViewContext.ViewData.ModelState.ErrorCount > 0)
             {
                     <text>

@@ -1,5 +1,4 @@
-﻿// CartViewModel.cs
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace CosmeticShopWeb.Models

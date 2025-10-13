@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Заказ оформлен";
+}
+
+<link rel="stylesheet" href="~/css/checkout.css" />
+<div class="confirmation-page container mt-5">
+    <div class="confirmation-card text-center">
+        <div class="confirmation-icon">🎉</div>
+        <h1>Заказ успешно оформлен!</h1>
+        <p class="order-number">Номер вашего заказа: <strong>#@ViewBag.OrderId</strong></p>
+
+        <div class="confirmation-info">
+            <p>Мы отправили подтверждение на вашу почту. Спасибо за покупку!</p>
+        </div>
+
+        <div class="confirmation-actions">
+            <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
+                🛍️ Продолжить покупки
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                🏠 На главную
+            </a>
+        </div>
+    </div>
+</div>
+

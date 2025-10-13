@@ -1,0 +1,84 @@
+﻿@model List<CosmeticShopWeb.Models.OrderHistoryViewModel>
+@{
+    ViewData["Title"] = "Мои заказы";
+}
+
+<link rel="stylesheet" href="~/css/my-orders.css" />
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>📦 Мои заказы</h1>
+            <p class="text-muted">История ваших заказов</p>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="empty-orders text-center py-5">
+                    <div class="empty-icon mb-3">📭</div>
+                    <h3>Заказов пока нет</h3>
+                    <p class="text-muted">Совершите свой первый заказ, и он появится здесь</p>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-primary">Перейти к товарам</a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row mt-4">
+            <div class="col-12">
+                @foreach (var order in Model)
+                {
+                    <div class="order-card mb-4">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <h5>Заказ #@order.Id</h5>
+                                <span class="order-date">@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</span>
+                            </div>
+                            <div class="order-status">
+                                <span class="badge
+                                            @(order.Status == "Выполнен" ? "bg-success" :
+                                                                            order.Status == "Отменен" ? "bg-danger" : "bg-warning")">
+                            @order.Status
+                        </span>
+                    </div>
+                </div>
+
+                        <div class="order-items">
+                    @foreach (var item in order.Items.Take(2))
+                            {
+                                <div class="order-item">
+                                    <img src="@item.ImageUrl" alt="@item.ProductName"
+                                         class="item-image" onerror="this.src='/images/placeholder-product.jpg'">
+                                    <div class="item-info">
+                                        <span class="item-name">@item.ProductName</span>
+                                        <span class="item-quantity">×@item.Quantity</span>
+                                    </div>
+                                    <span class="item-price">@item.Total.ToString("C")</span>
+                                </div>
+                            }
+                            @if (order.Items.Count > 2)
+                            {
+                                <div class="more-items">
+                                    <span class="text-muted">и еще @(order.Items.Count - 2) товар(ов)</span>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="order-footer">
+                            <div class="order-total">
+                                <strong>Итого: @order.TotalAmount.ToString("C")</strong>
+                            </div>
+                            <div class="order-actions">
+                                <a asp-action="OrderDetails" asp-route-id="@order.Id"
+                                   class="btn btn-outline-primary btn-sm">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

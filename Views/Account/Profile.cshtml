@@ -11,10 +11,8 @@
         <div class="row justify-content-center">
             <div class="col-md-10 col-lg-8">
                 <div class="profile-card">
-                    <!-- Частицы фона -->
                     <div class="profile-particles" id="particles"></div>
 
-                    <!-- Заголовок профиля -->
                     <div class="profile-header">
                         <h1 class="profile-title">
                             <span class="gradient-text">👤 Мой профиль</span>
@@ -22,9 +20,7 @@
                         <p class="profile-subtitle">Управляйте вашими данными и настройками</p>
                     </div>
 
-                    <!-- Тело профиля -->
                     <div class="profile-body">
-                        <!-- Уведомления -->
                         @if (TempData["Message"] != null)
                         {
                             <div class="alert alert-success alert-dismissible fade show d-flex align-items-center glass-effect" role="alert" style="border-left: 4px solid #4caf50;">
@@ -43,9 +39,7 @@
                             </div>
                         }
 
-                        <!-- Информационная сетка -->
                         <div class="profile-info-grid">
-                            <!-- Имя -->
                             <div class="profile-info-item shimmer-effect">
                                 <div class="info-label">
                                     <i class="fas fa-user info-icon"></i>
@@ -54,7 +48,6 @@
                                 <p class="info-value">@Model.FirstName</p>
                             </div>
 
-                            <!-- Фамилия -->
                             <div class="profile-info-item shimmer-effect">
                                 <div class="info-label">
                                     <i class="fas fa-users info-icon"></i>
@@ -63,7 +56,6 @@
                                 <p class="info-value">@Model.LastName</p>
                             </div>
 
-                            <!-- Email -->
                             <div class="profile-info-item shimmer-effect">
                                 <div class="info-label">
                                     <i class="fas fa-envelope info-icon"></i>
@@ -72,7 +64,6 @@
                                 <p class="info-value">@Model.Email</p>
                             </div>
 
-                            <!-- Роль -->
                             <div class="profile-info-item shimmer-effect">
                                 <div class="info-label">
                                     <i class="fas fa-shield-alt info-icon"></i>
@@ -81,7 +72,6 @@
                                 <span class="role-badge">@Model.RoleUs</span>
                             </div>
 
-                            <!-- Дата регистрации -->
                             @if (Model.DateRegistered.HasValue)
                             {
                                 <div class="profile-info-item shimmer-effect">
@@ -93,7 +83,6 @@
                                 </div>
                             }
 
-                            <!-- Статус -->
                             @if (!string.IsNullOrEmpty(Model.StatusUs))
                             {
                                 <div class="profile-info-item shimmer-effect">
@@ -108,7 +97,6 @@
                             }
                         </div>
 
-                        <!-- Панель действий -->
                         <div class="profile-actions">
                             <div class="row g-3 action-buttons">
                                 <div class="col-md-4">
@@ -135,12 +123,10 @@
     </div>
 </div>
 
-<!-- Подключаем Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 @section Scripts {
     <script>
-        // Создаем частицы
         function createParticles() {
             const container = document.getElementById('particles');
             const particleCount = 15;
@@ -149,7 +135,6 @@
                 const particle = document.createElement('div');
                 particle.className = 'particle';
 
-                // Случайные параметры
                 const size = Math.random() * 8 + 4;
                 const left = Math.random() * 100;
                 const delay = Math.random() * 15;
@@ -165,7 +150,6 @@
             }
         }
 
-        // Анимация появления элементов
         function animateOnScroll() {
             const observerOptions = {
                 threshold: 0.1,

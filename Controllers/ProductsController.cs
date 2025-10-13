@@ -87,7 +87,6 @@ namespace CosmeticShopWeb.Controllers
 
                 var product = apiResponse.Data;
 
-                // Загружаем отзывы для продукта
                 await LoadProductReviews(product);
 
                 try
@@ -216,7 +215,6 @@ namespace CosmeticShopWeb.Controllers
                 Console.WriteLine($"=== ДОБАВЛЕНИЕ ОТЗЫВА ===");
                 Console.WriteLine($"👤 User: {currentUser.Id_User}, 🎯 Product: {model.ProductId}");
 
-                // ПРОВЕРКА СУЩЕСТВУЮЩЕГО ОТЗЫВА
                 var hasExistingReview = await UserHasReviewForProduct(currentUser.Id_User, model.ProductId);
                 Console.WriteLine($"🔍 Проверка отзыва: {hasExistingReview}");
 
@@ -226,7 +224,6 @@ namespace CosmeticShopWeb.Controllers
                     return RedirectToAction("Details", new { id = model.ProductId });
                 }
 
-                // ДОБАВЛЕНИЕ НОВОГО ОТЗЫВА
                 var reviewData = new
                 {
                     productId = model.ProductId,

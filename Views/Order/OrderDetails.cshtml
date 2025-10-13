@@ -1,0 +1,91 @@
+﻿@model CosmeticShopWeb.Models.OrderHistoryViewModel
+@{
+    ViewData["Title"] = $"Заказ #{Model.Id}";
+}
+
+<link rel="stylesheet" href="~/css/my-orders.css" />
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="MyOrders">Мои заказы</a></li>
+                    <li class="breadcrumb-item active">Заказ #@Model.Id</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="order-details-card">
+                <div class="order-header">
+                    <h2>Заказ #@Model.Id</h2>
+                    <span class="order-status badge
+                        @(Model.Status == "Выполнен" ? "bg-success" :
+                                                    Model.Status == "Отменен" ? "bg-danger" : "bg-warning")">
+                        @Model.Status
+                    </span>
+                </div>
+
+                <div class="order-info">
+                    <div class="info-item">
+                        <span class="info-label">Дата заказа:</span>
+                        <span class="info-value">@Model.OrderDate.ToString("dd.MM.yyyy HH:mm")</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Способ оплаты:</span>
+                        <span class="info-value">@Model.PaymentMethod</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Адрес доставки:</span>
+                        <span class="info-value">@Model.DeliveryAddress</span>
+                    </div>
+                </div>
+
+                <div class="order-items">
+                    <h5>Состав заказа</h5>
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="order-item">
+                            <img src="@item.ImageUrl" alt="@item.ProductName"
+                                 class="item-image" onerror="this.src='/images/placeholder-product.jpg'">
+                            <div class="item-details">
+                                <div class="item-name">@item.ProductName</div>
+                                <div class="item-meta">
+                                    <span class="item-quantity">Количество: @item.Quantity</span>
+                                    <span class="item-price">@item.Price.ToString("C")/шт</span>
+                                </div>
+                            </div>
+                            <div class="item-total">@item.Total.ToString("C")</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="order-summary">
+                <h5>Итоги заказа</h5>
+                <div class="summary-row">
+                    <span>Товары:</span>
+                    <span>@Model.Items.Sum(i => i.Total).ToString("C")</span>
+                </div>
+                <div class="summary-row">
+                    <span>Доставка:</span>
+                    <span>@((Model.TotalAmount - Model.Items.Sum(i => i.Total)).ToString("C"))</span>
+                </div>
+                <hr>
+                <div class="summary-row total">
+                    <span><strong>Итого:</strong></span>
+                    <span><strong>@Model.TotalAmount.ToString("C")</strong></span>
+                </div>
+            </div>
+
+            <div class="order-actions mt-3">
+                <a asp-action="MyOrders" class="btn btn-secondary">← Назад к заказам</a>
+            </div>
+        </div>
+    </div>
+</div>
+

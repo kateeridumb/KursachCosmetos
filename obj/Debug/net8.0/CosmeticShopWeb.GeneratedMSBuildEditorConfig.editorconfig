@@ -48,6 +48,26 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/PRO/source/repos/CosmeticShopWeb/Views/Order/Checkout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcQ2hlY2tvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PRO/source/repos/CosmeticShopWeb/Views/Order/Confirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcQ29uZmlybWF0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PRO/source/repos/CosmeticShopWeb/Views/Order/MyOrders.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcTXlPcmRlcnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PRO/source/repos/CosmeticShopWeb/Views/Order/OrderDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcT3JkZXJEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PRO/source/repos/CosmeticShopWeb/Views/Order/Payment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcUGF5bWVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/PRO/source/repos/CosmeticShopWeb/Views/Products/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdHNcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

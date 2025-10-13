@@ -1,0 +1,265 @@
+﻿@model CosmeticShopWeb.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Оформление заказа";
+}
+
+<link rel="stylesheet" href="~/css/checkout.css" />
+
+<div class="checkout-page container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="checkout-card">
+                <div class="checkout-header">
+                    <h2>📦 Оформление заказа</h2>
+                    <p class="text-muted">Проверьте данные и выберите способ доставки</p>
+                </div>
+
+                <form asp-action="Checkout" method="post" class="checkout-form" id="checkoutForm">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="FirstName" />
+                    <input type="hidden" asp-for="LastName" />
+                    <input type="hidden" asp-for="Email" />
+                    <input type="hidden" asp-for="Phone" />
+
+                    <div class="checkout-progress">
+                        <div class="progress-step active">
+                            <span class="step-number">1</span>
+                            <span class="step-text">Данные</span>
+                        </div>
+                        <div class="progress-step">
+                            <span class="step-number">2</span>
+                            <span class="step-text">Оплата</span>
+                        </div>
+                        <div class="progress-step">
+                            <span class="step-number">3</span>
+                            <span class="step-text">Готово</span>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>👤 Ваши данные</h4>
+                        <div class="user-info-card">
+                            <div class="user-info-item">
+                                <span class="user-info-label">Имя:</span>
+                                <span class="user-info-value">@Model.FirstName @Model.LastName</span>
+                            </div>
+                            <div class="user-info-item">
+                                <span class="user-info-label">Email:</span>
+                                <span class="user-info-value">@Model.Email</span>
+                            </div>
+                            <div class="user-info-item">
+                                <span class="user-info-label">Телефон:</span>
+                                <span class="user-info-value">@Model.Phone</span>
+                            </div>
+                            <small class="text-muted">Данные взяты из вашего профиля</small>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>🏠 Адрес доставки</h4>
+                        <div class="form-group">
+                            <label asp-for="City" class="form-label">Город *</label>
+                            <input asp-for="City" class="form-control" placeholder="Москва" list="cities" />
+                            <datalist id="cities">
+                                <option value="Москва"></option>
+                                <option value="Санкт-Петербург"></option>
+                                <option value="Новосибирск"></option>
+                                <option value="Екатеринбург"></option>
+                                <option value="Казань"></option>
+                            </datalist>
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Address" class="form-label">Адрес *</label>
+                            <input asp-for="Address" class="form-control" placeholder="ул. Ленина, д. 1, кв. 1" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="PostalCode" class="form-label">Почтовый индекс *</label>
+                            <input asp-for="PostalCode" class="form-control" placeholder="123456" />
+                            <span asp-validation-for="PostalCode" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>🚚 Способ доставки *</h4>
+                        <div class="delivery-options">
+                            @foreach (var option in ViewBag.DeliveryOptions)
+                            {
+                                <div class="delivery-option">
+                                    <input type="radio" asp-for="DeliveryMethod" value="@option.Id" id="delivery-@option.Id"
+                                           data-cost="@option.Cost" />
+                                    <label for="delivery-@option.Id" class="delivery-label">
+                                        <div class="delivery-info">
+                                            <span class="delivery-name">@option.Name</span>
+                                            <span class="delivery-description">@option.Description</span>
+                                        </div>
+                                        <span class="delivery-cost">
+                                            @if (option.Cost == 0)
+                                            {
+                                                <span class="text-success">Бесплатно</span>
+                                            }
+                                            else
+                                            {
+                                                @option.Cost.ToString("C")
+                                            }
+                                        </span>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="DeliveryMethod" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>💳 Способ оплаты *</h4>
+                        <div class="payment-options">
+                            @foreach (var option in ViewBag.PaymentOptions)
+                            {
+                                <div class="payment-option">
+                                    <input type="radio" asp-for="PaymentMethod" value="@option.Id" id="payment-@option.Id" />
+                                    <label for="payment-@option.Id" class="payment-label">
+                                        <span class="payment-icon">@option.Icon</span>
+                                        <div class="payment-info">
+                                            <span class="payment-name">@option.Name</span>
+                                            <span class="payment-description">@option.Description</span>
+                                        </div>
+                                        <span class="payment-hint">
+                                            @if (option.Id == "cash")
+                                            {
+                                                <small class="text-muted">Оплата при получении</small>
+                                            }
+                                            else if (option.Id == "card")
+                                            {
+                                                <small class="text-muted">Онлайн оплата</small>
+                                            }
+                                            else if (option.Id == "sbp")
+                                            {
+                                                <small class="text-muted">Мгновенный платеж</small>
+                                            }
+                                        </span>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>📝 Комментарий к заказу</h4>
+                        <div class="form-group">
+                            <textarea asp-for="Comment" class="form-control" rows="3"
+                                      placeholder="Дополнительные пожелания к заказу, время доставки, подъезд и т.д."></textarea>
+                            <small class="form-text text-muted">Необязательно для заполнения</small>
+                        </div>
+                    </div>
+
+                    <div class="form-section agreement-section">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms">
+                                Я соглашаюсь с <a href="/terms" target="_blank">условиями обработки персональных данных</a>
+                                и <a href="/privacy" target="_blank">политикой конфиденциальности</a>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="agreeRules" required>
+                            <label class="form-check-label" for="agreeRules">
+                                Я ознакомлен с <a href="/return" target="_blank">правилами возврата товаров</a>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a asp-controller="Cart" asp-action="Index" class="btn btn-secondary">
+                            ← Вернуться в корзину
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            ✅ Оформить заказ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="order-summary">
+                <div class="summary-header">
+                    <h4>🛒 Ваш заказ</h4>
+                    <a asp-controller="Cart" asp-action="Index" class="edit-cart">Изменить</a>
+                </div>
+
+                <div class="summary-items">
+                    @if (Model.Cart?.Items != null)
+                    {
+                        @foreach (var item in Model.Cart.Items)
+                        {
+                            <div class="summary-item">
+                                <img src="@item.ImageUrl" alt="@item.Name" class="item-image"
+                                     onerror="this.src='/images/placeholder-product.jpg'">
+                                <div class="item-info">
+                                    <span class="item-name">@item.Name</span>
+                                    <span class="item-quantity">×@item.Quantity</span>
+                                    <span class="item-price">@item.Price.ToString("C")/шт</span>
+                                </div>
+                                <span class="item-total">@item.Total.ToString("C")</span>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="summary-totals">
+                    <div class="total-row">
+                        <span>Товары (@(Model.Cart?.TotalItems ?? 0) шт.):</span>
+                        <span>@(Model.Cart?.TotalPrice.ToString("C") ?? "0 ₽")</span>
+                    </div>
+                    <div class="total-row delivery-cost">
+                        <span>Доставка:</span>
+                        <span id="deliveryCostDisplay">@Model.DeliveryCost.ToString("C")</span>
+                    </div>
+                    <div class="total-row grand-total">
+                        <span><strong>Итого:</strong></span>
+                        <span><strong id="totalAmountDisplay">@Model.TotalAmount.ToString("C")</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function() {
+            setTimeout(function() {
+                if ($('input[name="DeliveryMethod"]:checked').length === 0) {
+                    $('input[name="DeliveryMethod"][value="standard"]').prop('checked', true);
+                }
+                if ($('input[name="PaymentMethod"]:checked').length === 0) {
+                    $('input[name="PaymentMethod"][value="card"]').prop('checked', true);
+                }
+
+                var selectedDelivery = $('input[name="DeliveryMethod"]:checked');
+                if (selectedDelivery.length > 0) {
+                    var cost = parseFloat(selectedDelivery.data('cost'));
+                    var cartTotal = @(Model.Cart?.TotalPrice ?? 0);
+                    var totalAmount = cartTotal + cost;
+
+                    $('#deliveryCostDisplay').text(cost === 0 ? 'Бесплатно' : cost + ' ₽');
+                    $('#totalAmountDisplay').text(totalAmount + ' ₽');
+                }
+            }, 100);
+
+            $('input[name="DeliveryMethod"]').change(function() {
+                var cost = parseFloat($(this).data('cost'));
+                var cartTotal = @(Model.Cart?.TotalPrice ?? 0);
+                var totalAmount = cartTotal + cost;
+
+                $('#deliveryCostDisplay').text(cost === 0 ? 'Бесплатно' : cost + ' ₽');
+                $('#totalAmountDisplay').text(totalAmount + ' ₽');
+            });
+        });
+    </script>
+}

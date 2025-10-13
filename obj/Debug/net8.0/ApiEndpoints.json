@@ -118,7 +118,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.Models.Category, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.CategoryDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -170,7 +170,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "CosmeticShopAPI.Models.Category",
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[CosmeticShopAPI.DTOs.CategoryDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -325,6 +325,32 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CosmeticShopAPI.Controllers.ImagesController",
+    "Method": "GetImagesByProduct",
+    "RelativePath": "api/Images/product/{productId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "productId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ImageDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "CosmeticShopAPI.Controllers.OrderDetailsController",
@@ -551,10 +577,31 @@
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "categoryId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[CosmeticShop.Core.DTOs.ProductDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ProductDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -606,7 +653,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "CosmeticShop.Core.DTOs.ProductDTO",
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[CosmeticShopAPI.DTOs.ProductDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -652,6 +699,26 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CosmeticShopAPI.Controllers.ProductsController",
+    "Method": "GetFeaturedProducts",
+    "RelativePath": "api/Products/featured",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ProductDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "CosmeticShopAPI.Controllers.PromoCodesController",
@@ -772,7 +839,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ReviewDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ReviewDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -791,14 +858,14 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "dto",
-        "Type": "CosmeticShopAPI.DTOs.ReviewDTO",
+        "Name": "request",
+        "Type": "CosmeticShopAPI.DTOs.CreateReviewRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "CosmeticShopAPI.DTOs.ReviewDTO",
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[CosmeticShopAPI.DTOs.ReviewDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -824,7 +891,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "CosmeticShopAPI.DTOs.ReviewDTO",
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[CosmeticShopAPI.DTOs.ReviewDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -857,14 +924,76 @@
   },
   {
     "ContainingType": "CosmeticShopAPI.Controllers.ReviewsController",
-    "Method": "DeleteReview",
-    "RelativePath": "api/Reviews/{id}",
+    "Method": "GetReviewsByProduct",
+    "RelativePath": "api/Reviews/product/{productId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "productId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ReviewDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CosmeticShopAPI.Controllers.ReviewsController",
+    "Method": "GetUserReviewForProduct",
+    "RelativePath": "api/Reviews/user/{userId}/product/{productId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "productId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[CosmeticShopAPI.DTOs.ReviewDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CosmeticShopAPI.Controllers.ReviewsController",
+    "Method": "DeleteUserReview",
+    "RelativePath": "api/Reviews/user/{userId}/product/{productId}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "productId",
         "Type": "System.Int32",
         "IsRequired": true
       }

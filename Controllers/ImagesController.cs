@@ -106,5 +106,28 @@ namespace CosmeticShopAPI.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("product/{productId}")]
+        public async Task<ActionResult<IEnumerable<ImageDTO>>> GetImagesByProduct(int productId)
+        {
+            var images = await _context.Images
+                .Where(i => i.ProductId == productId)
+                .ToListAsync();
+
+            if (!images.Any())
+                return NotFound();
+
+            var imageDtos = images.Select(i => new ImageDTO
+            {
+                IdImage = i.Id_Image,
+                ProductId = i.ProductId,
+                ImageUrl = i.ImageUrl,
+                DescriptionImg = i.DescriptionImg
+            }).ToList();
+
+            return Ok(imageDtos);
+        }
+
+
     }
 }

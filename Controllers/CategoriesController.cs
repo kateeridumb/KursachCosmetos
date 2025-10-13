@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CosmeticShopAPI.Models;
+using CosmeticShopAPI.DTOs;
 
 namespace CosmeticShopAPI.Controllers
 {
@@ -19,34 +17,109 @@ namespace CosmeticShopAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<ApiResponse<IEnumerable<CategoryDTO>>>> GetCategories()
         {
-            return await _context.Categories.ToListAsync();
+            try
+            {
+                var categories = await _context.Categories
+                    .Select(c => new CategoryDTO
+                    {
+                        IdCategory = c.Id_Category,
+                        NameCa = c.NameCa,
+                        DescriptionCa = c.DescriptionCa,
+                        ProductCount = _context.Products.Count(p => p.CategoryID == c.Id_Category && p.IsAvailable)
+                    })
+                    .OrderBy(c => c.IdCategory)
+                    .ToListAsync();
+
+                foreach (var cat in categories)
+                {
+                    cat.Icon = GetCategoryIcon(cat.IdCategory);
+                }
+
+                categories.Insert(0, new CategoryDTO
+                {
+                    IdCategory = 0,
+                    NameCa = "Все товары",
+                    DescriptionCa = "Все товары магазина",
+                    Icon = "📦",
+                    ProductCount = await _context.Products.CountAsync(p => p.IsAvailable)
+                });
+
+                return Ok(new ApiResponse<IEnumerable<CategoryDTO>>
+                {
+                    Success = true,
+                    Data = categories
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<string>
+                {
+                    Success = false,
+                    Message = $"Ошибка при загрузке категорий: {ex.Message}"
+                });
+            }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        private static string GetCategoryIcon(int categoryId) => categoryId switch
         {
-            var category = await _context.Categories.FindAsync(id);
+            1 => "💄",  
+            2 => "✨",  
+            3 => "🌺",  
+            4 => "💆‍♀️", 
+            5 => "🛁",  
+            6 => "🌟",  
+            _ => "📦"   
+        };
 
-            if (category == null)
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ApiResponse<CategoryDTO>>> GetCategory(int id)
+        {
+            try
             {
-                return NotFound();
-            }
+                var category = await _context.Categories
+                    .Where(c => c.Id_Category == id)
+                    .Select(c => new CategoryDTO
+                    {
+                        IdCategory = c.Id_Category,
+                        NameCa = c.NameCa,
+                        DescriptionCa = c.DescriptionCa,
+                        ProductCount = _context.Products.Count(p => p.CategoryID == c.Id_Category && p.IsAvailable)
+                    })
+                    .FirstOrDefaultAsync();
 
-            return category;
+                if (category == null)
+                    return NotFound(new ApiResponse<string>
+                    {
+                        Success = false,
+                        Message = "Категория не найдена"
+                    });
+
+                category.Icon = GetCategoryIcon(category.IdCategory);
+
+                return Ok(new ApiResponse<CategoryDTO>
+                {
+                    Success = true,
+                    Data = category
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<string>
+                {
+                    Success = false,
+                    Message = $"Ошибка при загрузке категории: {ex.Message}"
+                });
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(Category category)
         {
-            await SetSessionUser();
-
-            var sql = "INSERT INTO Categories (NameCa, DescriptionCa) VALUES ({0}, {1});";
-            await _context.Database.ExecuteSqlRawAsync(sql, category.NameCa, category.DescriptionCa);
-
-            var newId = await _context.Categories.MaxAsync(c => c.Id_Category);
-            category.Id_Category = newId;
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetCategory), new { id = category.Id_Category }, category);
         }
@@ -56,43 +129,22 @@ namespace CosmeticShopAPI.Controllers
         {
             if (id != category.Id_Category) return BadRequest();
 
-            await SetSessionUser();
+            _context.Entry(category).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
-            var sql = "UPDATE Categories SET NameCa = {0}, DescriptionCa = {1} WHERE ID_Category = {2};";
-            var rows = await _context.Database.ExecuteSqlRawAsync(sql, category.NameCa, category.DescriptionCa, id);
-
-            if (rows == 0) return NotFound();
-
-            var updated = await _context.Categories.FindAsync(id);
-            return Ok(updated);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            await SetSessionUser();
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null) return NotFound();
 
-            var sql = "DELETE FROM Categories WHERE Id_Category = {0};";
-            var rows = await _context.Database.ExecuteSqlRawAsync(sql, id);
-
-            if (rows == 0) return NotFound();
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.Id_Category == id);
-        }
-
-        private async Task SetSessionUser()
-        {
-            var userId = 1;
-            var userName = "admin";
-
-            var sql = "EXEC sp_set_session_context @key=N'UserID', @value={0}; " +
-                      "EXEC sp_set_session_context @key=N'UserName', @value={1};";
-            await _context.Database.ExecuteSqlRawAsync(sql, userId, userName);
         }
     }
 }

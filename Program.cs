@@ -8,13 +8,24 @@ builder.Services.AddHttpClient("CosmeticApi", client =>
     client.BaseAddress = new Uri(apiUrl);
 });
 
+// Простая настройка для кук
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.CheckConsentNeeded = context => false;
+    options.MinimumSameSitePolicy = SameSiteMode.Strict;
+});
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Для разработки
 });
+
+// Добавляем сервис для доступа к HttpContext
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -31,6 +42,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.UseCookiePolicy(); 
 app.UseSession();
 
 app.MapControllerRoute(

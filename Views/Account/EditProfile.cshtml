@@ -1,0 +1,279 @@
+﻿@model UpdateProfileViewModel
+
+@{
+    ViewData["Title"] = "Редактирование профиля";
+}
+
+<link rel="stylesheet" href="~/css/edit-profile.css" />
+<!-- Подключаем Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="edit-profile-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="edit-profile-card">
+                    <!-- Заголовок -->
+                    <div class="edit-profile-header">
+                        <h1 class="edit-profile-title">
+                            <i class="fas fa-user-edit me-2"></i>Редактирование профиля
+                        </h1>
+                        <p class="edit-profile-subtitle">Обновите ваши личные данные и настройки безопасности</p>
+                    </div>
+
+                    <!-- Тело формы -->
+                    <div class="edit-profile-body">
+                        <form asp-action="EditProfile" method="post" class="profile-form" id="editProfileForm">
+                            <!-- Валидация - изначально скрыта -->
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none" id="validationSummary"></div>
+
+                            <!-- Основная информация -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="fas fa-user-circle"></i>Основная информация
+                                </h3>
+
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label asp-for="FirstName" class="form-label">
+                                            <i class="fas fa-user"></i>Имя
+                                        </label>
+                                        <input asp-for="FirstName" class="form-control" placeholder="Введите ваше имя" />
+                                        <span asp-validation-for="FirstName" class="text-danger validation-message d-none"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="LastName" class="form-label">
+                                            <i class="fas fa-users"></i>Фамилия
+                                        </label>
+                                        <input asp-for="LastName" class="form-control" placeholder="Введите вашу фамилию" />
+                                        <span asp-validation-for="LastName" class="text-danger validation-message d-none"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="MiddleName" class="form-label">
+                                        <i class="fas fa-user-tag"></i>Отчество
+                                    </label>
+                                    <input asp-for="MiddleName" class="form-control" placeholder="Введите ваше отчество (необязательно)" />
+                                    <span asp-validation-for="MiddleName" class="text-danger validation-message d-none"></span>
+                                </div>
+                            </div>
+
+                            <!-- Контактная информация -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="fas fa-address-book"></i>Контактная информация
+                                </h3>
+
+                                <div class="form-group">
+                                    <label asp-for="Email" class="form-label">
+                                        <i class="fas fa-envelope"></i>Email
+                                    </label>
+                                    <input asp-for="Email" class="form-control" type="email" placeholder="your@email.com" />
+                                    <span asp-validation-for="Email" class="text-danger validation-message d-none"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Phone" class="form-label">
+                                        <i class="fas fa-phone"></i>Телефон
+                                    </label>
+                                    <input asp-for="Phone" class="form-control" type="tel" placeholder="+7 (XXX) XXX-XX-XX" />
+                                    <span asp-validation-for="Phone" class="text-danger validation-message d-none"></span>
+                                </div>
+                            </div>
+
+                            <!-- Разделитель -->
+                            <div class="form-divider"></div>
+
+                            <!-- Смена пароля -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="fas fa-lock"></i>Безопасность
+                                </h3>
+
+                                <div class="password-section">
+                                    <div class="password-note">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Смена пароля</strong> - заполняйте эти поля только если хотите изменить пароль
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="NewPassword" class="form-label">
+                                            <i class="fas fa-key"></i>Новый пароль
+                                        </label>
+                                        <input asp-for="NewPassword" class="form-control" type="password" placeholder="Введите новый пароль" />
+                                        <span asp-validation-for="NewPassword" class="text-danger validation-message d-none"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="ConfirmPassword" class="form-label">
+                                            <i class="fas fa-key"></i>Подтверждение пароля
+                                        </label>
+                                        <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Повторите новый пароль" />
+                                        <span asp-validation-for="ConfirmPassword" class="text-danger validation-message d-none"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Кнопки действий -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn-edit btn-save">
+                                    <i class="fas fa-save"></i>Сохранить изменения
+                                </button>
+                                <a asp-action="Profile" class="btn-edit btn-cancel">
+                                    <i class="fas fa-times"></i>Отмена
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('editProfileForm');
+            const validationSummary = document.getElementById('validationSummary');
+            const validationMessages = document.querySelectorAll('.validation-message');
+
+            // Изначально скрываем все сообщения об ошибках
+            validationMessages.forEach(message => {
+                message.classList.add('d-none');
+            });
+
+            // Функция для показа/скрытия ошибок
+            function toggleValidationMessage(field, show) {
+                const message = field.parentElement.querySelector('.validation-message');
+                if (message) {
+                    if (show) {
+                        message.classList.remove('d-none');
+                        field.classList.add('input-error');
+                    } else {
+                        message.classList.add('d-none');
+                        field.classList.remove('input-error');
+                    }
+                }
+            }
+
+            // Валидация при вводе
+            const inputs = document.querySelectorAll('.form-control');
+
+            inputs.forEach(input => {
+                // При фокусе
+                input.addEventListener('focus', function() {
+                    this.classList.remove('input-error', 'input-valid');
+                });
+
+                // При вводе
+                input.addEventListener('input', function() {
+                    const isValid = this.checkValidity();
+
+                    if (this.value.trim() === '') {
+                        toggleValidationMessage(this, false);
+                        this.classList.remove('input-error', 'input-valid');
+                    } else if (!isValid) {
+                        toggleValidationMessage(this, true);
+                    } else {
+                        toggleValidationMessage(this, false);
+                        this.classList.add('input-valid');
+                    }
+                });
+
+                // При потере фокуса
+                input.addEventListener('blur', function() {
+                    const isValid = this.checkValidity();
+
+                    if (this.value.trim() === '') {
+                        toggleValidationMessage(this, false);
+                    } else if (!isValid) {
+                        toggleValidationMessage(this, true);
+                    } else {
+                        toggleValidationMessage(this, false);
+                        this.classList.add('input-valid');
+                    this.classList.remove('input-error');
+                    }
+                });
+            });
+
+            // Обработка отправки формы
+            form.addEventListener('submit', function(e) {
+                let hasErrors = false;
+
+                // Проверяем все поля
+                inputs.forEach(input => {
+                    const isValid = input.checkValidity();
+
+                    if (!isValid && input.value.trim() !== '') {
+                        toggleValidationMessage(input, true);
+                        hasErrors = true;
+                    }
+                });
+
+                // Если есть ошибки, показываем summary
+                if (hasErrors) {
+                    e.preventDefault();
+                    validationSummary.classList.remove('d-none');
+
+                    // Прокручиваем к первой ошибке
+                    const firstError = document.querySelector('.input-error');
+                    if (firstError) {
+                        firstError.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                } else {
+                    validationSummary.classList.add('d-none');
+                }
+            });
+
+            // Показываем ошибки только после первой попытки отправки
+            let formSubmitted = false;
+
+            form.addEventListener('submit', function() {
+                formSubmitted = true;
+            });
+
+            // Анимация появления полей
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                group.style.opacity = '0';
+                group.style.transform = 'translateY(20px)';
+                group.style.transition = `all 0.6s ease ${index * 0.1}s`;
+
+                setTimeout(() => {
+                    group.style.opacity = '1';
+                    group.style.transform = 'translateY(0)';
+                }, 100);
+            });
+
+            // Обработка серверных ошибок (если форма была отправлена и вернулась с ошибками)
+            @if (ViewContext.ViewData.ModelState.ErrorCount > 0)
+            {
+                    <text>
+                    // Показываем ошибки сервера
+                    validationSummary.classList.remove('d-none');
+
+                    // Показываем сообщения для каждого поля
+                    inputs.forEach(input => {
+                        const fieldName = input.getAttribute('name');
+                        const errors = @Html.Raw(Json.Serialize(ViewContext.ViewData.ModelState
+                                                .Where(x => x.Key == ViewData.TemplateInfo.GetFullHtmlFieldName(""))
+                                                .SelectMany(x => x.Value.Errors)
+                                                .Select(x => x.ErrorMessage)));
+
+                if (errors && errors.length > 0) {
+                    toggleValidationMessage(input, true);
+                }
+            });
+            </text>
+                }
+        });
+    </script>
+}

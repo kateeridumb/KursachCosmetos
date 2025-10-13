@@ -1,0 +1,197 @@
+﻿@model ProfileViewModel
+
+@{
+    ViewData["Title"] = "Мой профиль";
+}
+
+<link rel="stylesheet" href="~/css/profile.css" />
+
+<div class="profile-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="profile-card">
+                    <!-- Частицы фона -->
+                    <div class="profile-particles" id="particles"></div>
+
+                    <!-- Заголовок профиля -->
+                    <div class="profile-header">
+                        <h1 class="profile-title">
+                            <span class="gradient-text">👤 Мой профиль</span>
+                        </h1>
+                        <p class="profile-subtitle">Управляйте вашими данными и настройками</p>
+                    </div>
+
+                    <!-- Тело профиля -->
+                    <div class="profile-body">
+                        <!-- Уведомления -->
+                        @if (TempData["Message"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center glass-effect" role="alert" style="border-left: 4px solid #4caf50;">
+                                <i class="fas fa-check-circle me-2" style="color: #4caf50;"></i>
+                                @TempData["Message"]
+                                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center glass-effect" role="alert" style="border-left: 4px solid #ff9800;">
+                                <i class="fas fa-exclamation-triangle me-2" style="color: #ff9800;"></i>
+                                @TempData["Error"]
+                                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        <!-- Информационная сетка -->
+                        <div class="profile-info-grid">
+                            <!-- Имя -->
+                            <div class="profile-info-item shimmer-effect">
+                                <div class="info-label">
+                                    <i class="fas fa-user info-icon"></i>
+                                    Имя
+                                </div>
+                                <p class="info-value">@Model.FirstName</p>
+                            </div>
+
+                            <!-- Фамилия -->
+                            <div class="profile-info-item shimmer-effect">
+                                <div class="info-label">
+                                    <i class="fas fa-users info-icon"></i>
+                                    Фамилия
+                                </div>
+                                <p class="info-value">@Model.LastName</p>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="profile-info-item shimmer-effect">
+                                <div class="info-label">
+                                    <i class="fas fa-envelope info-icon"></i>
+                                    Email
+                                </div>
+                                <p class="info-value">@Model.Email</p>
+                            </div>
+
+                            <!-- Роль -->
+                            <div class="profile-info-item shimmer-effect">
+                                <div class="info-label">
+                                    <i class="fas fa-shield-alt info-icon"></i>
+                                    Роль
+                                </div>
+                                <span class="role-badge">@Model.RoleUs</span>
+                            </div>
+
+                            <!-- Дата регистрации -->
+                            @if (Model.DateRegistered.HasValue)
+                            {
+                                <div class="profile-info-item shimmer-effect">
+                                    <div class="info-label">
+                                        <i class="fas fa-calendar-alt info-icon"></i>
+                                        Дата регистрации
+                                    </div>
+                                    <p class="info-value">@Model.DateRegistered.Value.ToString("dd.MM.yyyy")</p>
+                                </div>
+                            }
+
+                            <!-- Статус -->
+                            @if (!string.IsNullOrEmpty(Model.StatusUs))
+                            {
+                                <div class="profile-info-item shimmer-effect">
+                                    <div class="info-label">
+                                        <i class="fas fa-circle info-icon"></i>
+                                        Статус
+                                    </div>
+                                    <span class="status-badge @(Model.StatusUs == "Активен" ? "status-active" : "status-inactive")">
+                                        @Model.StatusUs
+                                    </span>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Панель действий -->
+                        <div class="profile-actions">
+                            <div class="row g-3 action-buttons">
+                                <div class="col-md-4">
+                                    <a asp-controller="Home" asp-action="Index" class="action-btn btn-secondary-soft w-100">
+                                        <i class="fas fa-home"></i> На главную
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a asp-controller="Cart" asp-action="Index" class="action-btn btn-outline-pink w-100">
+                                        <i class="fas fa-shopping-cart"></i> Корзина
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a asp-action="EditProfile" class="action-btn btn-primary-gradient w-100">
+                                        <i class="fas fa-edit"></i> Редактировать
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Подключаем Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+@section Scripts {
+    <script>
+        // Создаем частицы
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 15;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                // Случайные параметры
+                const size = Math.random() * 8 + 4;
+                const left = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = Math.random() * 10 + 10;
+
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+
+                container.appendChild(particle);
+            }
+        }
+
+        // Анимация появления элементов
+        function animateOnScroll() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.profile-info-item').forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(40px)';
+                item.style.transition = `all 0.6s ease ${index * 0.1}s`;
+                observer.observe(item);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            animateOnScroll();
+        });
+    </script>
+}

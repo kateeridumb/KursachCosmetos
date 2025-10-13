@@ -1,11 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using CosmeticShopWeb.Controllers;
 using CosmeticShopWeb.Models;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net.Http;
+using System.Text.Json;
 
-public class CartController : Controller
+public class CartController : BaseController
 {
     private const string CartSessionKey = "CartSession";
 
+    private readonly HttpClient _httpClient;
+    private readonly string _apiBaseUrl;
+    private readonly JsonSerializerOptions _jsonOptions;
+    public CartController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+           : base(configuration)
+    {
+        _httpClient = httpClientFactory.CreateClient();
+        _apiBaseUrl = configuration["BaseUrl"] ?? "https://localhost:5094/api/";
+        _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+    }
     public IActionResult Index()
     {
         var cart = GetCart();

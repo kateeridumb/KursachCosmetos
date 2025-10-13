@@ -592,7 +592,78 @@
         font-size: 1rem;
     }
 }
+/* Дополнительные стили для иконок */
+.feature-icon i {
+    font-size: 3.5rem;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 8px rgba(216, 27, 96, 0.3));
+}
 
+.feature-card:hover .feature-icon i {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 6px 12px rgba(216, 27, 96, 0.5));
+}
+
+.category-image {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+    .category-image i {
+        transition: all 0.3s ease;
+    }
+
+.category-card:hover .category-image i {
+    transform: scale(1.1);
+}
+
+.counter-label i {
+    font-size: 1.2rem;
+}
+
+.testimonial-card .feature-icon i {
+    font-size: 2.5rem;
+    opacity: 0.8;
+}
+
+.btn-hero-primary i,
+.btn-hero-secondary i,
+.btn-cta-primary i,
+.btn-cta-secondary i {
+    transition: transform 0.3s ease;
+}
+
+.btn-hero-primary:hover i,
+.btn-hero-secondary:hover i,
+.btn-cta-primary:hover i,
+.btn-cta-secondary:hover i {
+    transform: translateX(3px);
+}
+
+/* Анимация пульсации для иконок */
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.feature-icon i {
+    animation: iconPulse 3s ease-in-out infinite;
+}
+
+.feature-card:hover .feature-icon i {
+    animation: none;
+}
+
+/* Цвета иконок в категориях */
+.category-badge i {
+    font-size: 0.7rem;
+}
 @media (max-width: 480px) {
     .hero-title {
         font-size: 1.8rem;

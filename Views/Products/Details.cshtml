@@ -1,17 +1,37 @@
 ﻿@model CosmeticShopWeb.Models.ProductViewModel
-
+@functions {
+    private UserLoginResponse GetUserFromCookie()
+    {
+        if (Context.Request.Cookies.TryGetValue("UserAuth", out var encryptedData))
+        {
+            try
+            {
+                var userJson = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(encryptedData));
+                return System.Text.Json.JsonSerializer.Deserialize<UserLoginResponse>(userJson,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        return null;
+    }
+}
 @{
     ViewData["Title"] = Model.NamePr;
 }
 
 <link rel="stylesheet" href="~/css/details.css" />
+<!-- Подключаем Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <section class="product-hero">
     <div class="container">
         <div class="hero-background">
-            <div class="floating-orb orb-1"></div>
-            <div class="floating-orb orb-2"></div>
-            <div class="floating-orb orb-3"></div>
+            <div class="floating-orb orb-1"><i class="fas fa-gem"></i></div>
+            <div class="floating-orb orb-2"><i class="fas fa-star"></i></div>
+            <div class="floating-orb orb-3"><i class="fas fa-heart"></i></div>
         </div>
 
         <div class="row align-items-center">
@@ -19,18 +39,18 @@
                 <div class="product-visual">
                     <div class="main-image">
                         <div class="product-badge @Model.StockStatusClass">
-                            @Model.StockStatus
+                            <i class="@GetStockIcon(Model.StockStatus) me-1"></i>@Model.StockStatus
                         </div>
                         <div class="product-actions">
                             <button class="action-btn wishlist-btn" title="В избранное">
-                                <span class="heart-icon">💖</span>
+                                <i class="far fa-heart"></i>
                             </button>
                             <button class="action-btn share-btn" title="Поделиться">
-                                <span class="share-icon">📤</span>
+                                <i class="fas fa-share-alt"></i>
                             </button>
                         </div>
                         <div class="image-placeholder">
-                            <span class="product-icon">@Model.CategoryIcon</span>
+                            <i class="@GetCategoryIcon(Model.CategoryName) product-icon"></i>
                             <div class="image-overlay"></div>
                         </div>
                     </div>
@@ -40,24 +60,35 @@
             <div class="col-lg-6">
                 <div class="product-info">
                     <nav class="breadcrumb">
-                        <a asp-controller="Products" asp-action="Index" class="breadcrumb-link">Каталог</a>
+                        <a asp-controller="Products" asp-action="Index" class="breadcrumb-link">
+                            <i class="fas fa-home me-1"></i>Каталог
+                        </a>
                         <span class="breadcrumb-separator">/</span>
-                        <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.CategoryId" class="breadcrumb-link">@Model.CategoryName</a>
+                        <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.CategoryId" class="breadcrumb-link">
+                            <i class="@GetCategoryIcon(Model.CategoryName) me-1"></i>@Model.CategoryName
+                        </a>
                         <span class="breadcrumb-separator">/</span>
                         <span class="breadcrumb-current">@Model.NamePr</span>
                     </nav>
 
                     <h1 class="product-title">@Model.NamePr</h1>
-                    <div class="product-brand">@Model.BrandPr</div>
+                    <div class="product-brand">
+                        <i class="fas fa-tag me-2" style="color: #ec407a;"></i>@Model.BrandPr
+                    </div>
 
                     <div class="price-section">
-                        <div class="current-price">@Model.FormattedPrice</div>
-                        <div class="price-badge">Лучшая цена 🏷️</div>
+                        <div class="current-price">
+                            <i class="fas fa-ruble-sign me-1" style="opacity: 0.7;"></i>@Model.FormattedPrice
+                        </div>
+                        <div class="price-badge">
+                            <i class="fas fa-trophy me-1"></i>Лучшая цена
+                        </div>
                     </div>
 
                     <div class="stock-info">
                         <div class="stock-indicator @Model.StockStatusClass">
                             <div class="indicator-dot"></div>
+                            <i class="@GetStockIcon(Model.StockStatus) me-1"></i>
                             <span>@Model.StockStatus</span>
                             @if (Model.StockQuantity > 0 && Model.StockQuantity < 10)
                             {
@@ -67,38 +98,36 @@
                     </div>
 
                     <div class="action-buttons">
-                        <div class="action-buttons">
-                            <form asp-controller="Cart" asp-action="Add" method="post" class="d-inline">
-                                <input type="hidden" name="productId" value="@Model.IdProduct" />
-                                <input type="hidden" name="name" value="@Model.NamePr" />
-                                <input type="hidden" name="price" value="@Model.Price" />
-                                <input type="hidden" name="quantity" value="1" />
+                        <form asp-controller="Cart" asp-action="Add" method="post" class="d-inline">
+                            <input type="hidden" name="productId" value="@Model.IdProduct" />
+                            <input type="hidden" name="name" value="@Model.NamePr" />
+                            <input type="hidden" name="price" value="@Model.Price" />
+                            <input type="hidden" name="quantity" value="1" />
 
-                                <button type="submit" class="btn-primary add-to-cart"
-                                        @(Model.IsAvailable && Model.StockQuantity > 0 ? "" : "disabled")>
-                                    <span class="btn-icon">🛒</span>
-                                    <span class="btn-text">Добавить в корзину</span>
-                                </button>
-                            </form>
-
-                            <button class="btn-secondary buy-now" @(Model.IsAvailable && Model.StockQuantity > 0 ? "" : "disabled")>
-                                <span class="btn-text">Купить сейчас</span>
-                                <span class="btn-arrow">→</span>
+                            <button type="submit" class="btn-primary add-to-cart"
+                                    @(Model.IsAvailable && Model.StockQuantity > 0 ? "" : "disabled")>
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                <span class="btn-text">Добавить в корзину</span>
                             </button>
-                        </div>
+                        </form>
+
+                        <button class="btn-secondary buy-now" @(Model.IsAvailable && Model.StockQuantity > 0 ? "" : "disabled")>
+                            <span class="btn-text">Купить сейчас</span>
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
                     </div>
 
                     <div class="product-meta">
                         <div class="meta-item">
-                            <span class="meta-icon">🚚</span>
+                            <i class="fas fa-truck me-2" style="color: #ec407a;"></i>
                             <span class="meta-text">Бесплатная доставка от 2000₽</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-icon">↩️</span>
+                            <i class="fas fa-undo me-2" style="color: #ec407a;"></i>
                             <span class="meta-text">Возврат в течение 14 дней</span>
                         </div>
                         <div class="meta-item">
-                            <span class="meta-icon">⭐</span>
+                            <i class="fas fa-shield-alt me-2" style="color: #ec407a;"></i>
                             <span class="meta-text">Гарантия качества</span>
                         </div>
                     </div>
@@ -112,34 +141,44 @@
     <div class="container">
         <div class="details-tabs">
             <div class="tabs-header">
-                <button class="tab-button active" data-tab="description">Описание</button>
-                <button class="tab-button" data-tab="specifications">Характеристики</button>
-                <button class="tab-button" data-tab="reviews">Отзывы</button>
+                <button class="tab-button active" data-tab="description">
+                    <i class="fas fa-file-alt me-2"></i>Описание
+                </button>
+                <button class="tab-button" data-tab="specifications">
+                    <i class="fas fa-list me-2"></i>Характеристики
+                </button>
+                <button class="tab-button" data-tab="reviews">
+                    <i class="fas fa-comments me-2"></i>Отзывы
+                    @if (Model.TotalReviews > 0)
+                    {
+                        <span class="reviews-badge">@Model.TotalReviews</span>
+                    }
+                </button>
             </div>
 
             <div class="tabs-content">
                 <div class="tab-pane active" id="description">
                     <div class="description-content">
-                        <h3>О товаре</h3>
+                        <h3><i class="fas fa-info-circle me-2" style="color: #ec407a;"></i>О товаре</h3>
                         <p>@Model.DescriptionPr</p>
 
                         <div class="features-grid">
                             <div class="feature">
-                                <span class="feature-icon">✨</span>
+                                <i class="fas fa-award feature-icon" style="color: #ec407a;"></i>
                                 <div class="feature-text">
                                     <strong>Премиальное качество</strong>
                                     <span>Использование лучших материалов</span>
                                 </div>
                             </div>
                             <div class="feature">
-                                <span class="feature-icon">🌿</span>
+                                <i class="fas fa-leaf feature-icon" style="color: #4CAF50;"></i>
                                 <div class="feature-text">
                                     <strong>Безопасный состав</strong>
                                     <span>Гипоаллергенные компоненты</span>
                                 </div>
                             </div>
                             <div class="feature">
-                                <span class="feature-icon">💎</span>
+                                <i class="fas fa-crown feature-icon" style="color: #FFD700;"></i>
                                 <div class="feature-text">
                                     <strong>Люкс сегмент</strong>
                                     <span>Премиум упаковка и презентация</span>
@@ -152,30 +191,185 @@
                 <div class="tab-pane" id="specifications">
                     <div class="specs-grid">
                         <div class="spec-item">
-                            <span class="spec-label">Бренд</span>
+                            <span class="spec-label">
+                                <i class="fas fa-tag me-2" style="color: #ec407a;"></i>Бренд
+                            </span>
                             <span class="spec-value">@Model.BrandPr</span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">Категория</span>
-                            <span class="spec-value">@Model.CategoryName @Model.CategoryIcon</span>
+                            <span class="spec-label">
+                                <i class="@GetCategoryIcon(Model.CategoryName) me-2" style="color: #ec407a;"></i>Категория
+                            </span>
+                            <span class="spec-value">@Model.CategoryName</span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">Наличие</span>
-                            <span class="spec-value @Model.StockStatusClass">@Model.StockStatus</span>
+                            <span class="spec-label">
+                                <i class="fas fa-box me-2" style="color: #ec407a;"></i>Наличие
+                            </span>
+                            <span class="spec-value @Model.StockStatusClass">
+                                <i class="@GetStockIcon(Model.StockStatus) me-1"></i>@Model.StockStatus
+                            </span>
                         </div>
                         <div class="spec-item">
-                            <span class="spec-label">Код товара</span>
+                            <span class="spec-label">
+                                <i class="fas fa-barcode me-2" style="color: #ec407a;"></i>Код товара
+                            </span>
                             <span class="spec-value">#@Model.IdProduct.ToString("D6")</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="tab-pane" id="reviews">
-                    <div class="reviews-placeholder">
-                        <div class="placeholder-icon">💬</div>
-                        <h4>Отзывов пока нет</h4>
-                        <p>Будьте первым, кто оставит отзыв об этом товаре!</p>
-                        <button class="btn-outline">Написать отзыв</button>
+                    <div class="reviews-section">
+                        <div class="reviews-header">
+                            <h3><i class="fas fa-comments me-2" style="color: #ec407a;"></i>Отзывы покупателей</h3>
+                            <div class="rating-summary">
+                                <div class="average-rating">
+                                    <span class="rating-number">@Model.AverageRating.ToString("0.0")</span>
+                                    <div class="stars">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fas fa-star @(i <= Model.AverageRating ? "active" : "")"></i>
+                                        }
+                                    </div>
+                                    <span class="reviews-count">@Model.TotalReviews отзывов</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Форма добавления отзыва -->
+                        <div class="add-review-form">
+                            <h4><i class="fas fa-edit me-2"></i>Оставить отзыв</h4>
+
+                            @if (Context.Request.Cookies["UserAuth"] != null)
+                            {
+                                <form asp-controller="Products" asp-action="AddReview" method="post" class="review-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="ProductId" value="@Model.IdProduct" />
+
+                                    <div class="form-group">
+                                        <label>Ваша оценка:</label>
+                                        <div class="rating-input">
+                                            @for (int i = 5; i >= 1; i--)
+                                            {
+                                                <input type="radio" id="star-@i" name="Rating" value="@i" required />
+                                                <label for="star-@i" class="star-label">
+                                                    <i class="far fa-star"></i>
+                                                </label>
+                                            }
+                                        </div>
+                                        <span class="text-danger rating-error d-none">Пожалуйста, выберите оценку</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="CommentRe">Ваш отзыв:</label>
+                                        <textarea name="CommentRe" class="form-control review-textarea"
+                                              placeholder="Поделитесь вашим мнением о товаре..."
+                                              rows="4" required maxlength="1000"></textarea>
+                                        <span class="text-danger comment-error d-none">Отзыв не может быть пустым</span>
+                                    </div>
+
+                                    <button type="submit" class="btn-primary submit-review">
+                                        <i class="fas fa-paper-plane me-2"></i>Опубликовать отзыв
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <div class="login-prompt">
+                                    <i class="fas fa-user-lock me-2"></i>
+                                    <span>
+                                        Чтобы оставить отзыв, пожалуйста,
+                                        <a asp-controller="Account" asp-action="Login" class="login-link">войдите в систему</a>
+                                    </span>
+                                </div>
+                            }
+
+                            <!-- Отображение сообщений TempData -->
+                            @if (TempData["Message"] != null)
+                            {
+                                <div class="alert alert-success mt-3">
+                                    <i class="fas fa-check-circle me-2"></i>@TempData["Message"]
+                                </div>
+                            }
+
+                            @if (TempData["Error"] != null)
+                            {
+                                <div class="alert alert-danger mt-3">
+                                    <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+                                </div>
+                            }
+                        </div>
+
+                        <div class="reviews-list">
+                            @if (Model.Reviews != null && Model.Reviews.Any())
+                            {
+                                foreach (var review in Model.Reviews)
+                                {
+                                    var currentUser = GetUserFromCookie();
+                                    bool isCurrentUserReview = currentUser != null && currentUser.Id_User == review.UserId;
+
+                                    <div class="review-item @(isCurrentUserReview ? "own-review" : "")" id="review-@review.IdReview">
+                                        <div class="review-header">
+                                            <div class="reviewer-info">
+                                                <div class="reviewer-avatar">
+                                                    <i class="fas fa-user-circle"></i>
+                                                </div>
+                                                <div class="reviewer-details">
+                                                    <span class="reviewer-name">
+                                                        @review.UserName
+                                                        @if (isCurrentUserReview)
+                                                        {
+                                                            <span class="you-badge">(Вы)</span>
+                                                        }
+                                                    </span>
+                                                    <span class="review-date">@review.CreatedAt.ToString("dd.MM.yyyy")</span>
+                                                </div>
+                                            </div>
+                                            <div class="review-actions">
+                                                <div class="review-rating">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        if (i <= review.Rating)
+                                                        {
+                                                            <i class="fas fa-star active"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="far fa-star inactive"></i>
+                                                        }
+                                                    }
+                                                </div>
+
+                                                @if (isCurrentUserReview)
+                                                {
+                                                    <form asp-action="DeleteReview" method="post" class="delete-review-form">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="productId" value="@Model.IdProduct" />
+                                                        <input type="hidden" name="userId" value="@review.UserId" />
+                                                        <button type="submit" class="btn-delete-review"
+                                                                onclick="return confirm('Вы уверены, что хотите удалить свой отзыв?')">
+                                                            <i class="fas fa-trash"></i> Удалить
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="review-content">
+                                            <p>@review.CommentRe</p>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="no-reviews">
+                                    <i class="fas fa-comments-slash placeholder-icon"></i>
+                                    <h4>Отзывов пока нет</h4>
+                                    <p>Будьте первым, кто оставит отзыв об этом товаре!</p>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -186,22 +380,72 @@
 <section class="related-products">
     <div class="container">
         <div class="section-header">
-            <h2>Похожие товары</h2>
+            <h2><i class="fas fa-cubes me-2" style="color: #ec407a;"></i>Похожие товары</h2>
             <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@Model.CategoryId" class="view-all">
-                Смотреть все <span>→</span>
+                Смотреть все <i class="fas fa-arrow-right ms-1"></i>
             </a>
         </div>
 
         <div class="products-grid">
-            <div class="related-placeholder">
-                <div class="placeholder-content">
-                    <span class="placeholder-icon">🔍</span>
-                    <p>Ищем похожие товары...</p>
+            @if (Model.RelatedProducts != null && Model.RelatedProducts.Any())
+            {
+                foreach (var product in Model.RelatedProducts.Take(4))
+                {
+                    <div class="product-card">
+                        <div class="product-image">
+                            <div class="image-placeholder">
+                                <i class="@GetCategoryIcon(product.CategoryName) product-icon"></i>
+                            </div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">@product.NamePr</h3>
+                            <div class="product-price">@product.FormattedPrice</div>
+                            <a asp-action="Details" asp-route-id="@product.IdProduct" class="btn-view">Подробнее</a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="related-placeholder">
+                    <div class="placeholder-content">
+                        <i class="fas fa-search placeholder-icon" style="color: #ec407a; font-size: 3rem;"></i>
+                        <p>Похожих товаров не найдено</p>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     </div>
 </section>
+
+@functions {
+    public string GetCategoryIcon(string categoryName)
+    {
+        return categoryName?.ToLower() switch
+        {
+            "декоративная косметика" or "макияж" => "fas fa-palette",
+            "уход за кожей" or "косметика" => "fas fa-spa",
+            "парфюмерия" or "ароматы" => "fas fa-wind",
+            "волосы" or "уход за волосами" => "fas fa-cut",
+            "бренд" or "бренды" => "fas fa-crown",
+            "акции" or "скидки" => "fas fa-percentage",
+            "новинки" => "fas fa-star",
+            _ => "fas fa-cube"
+        };
+    }
+
+    public string GetStockIcon(string stockStatus)
+    {
+        return stockStatus?.ToLower() switch
+        {
+            "в наличии" => "fas fa-check-circle",
+            "мало" => "fas fa-exclamation-triangle",
+            "нет в наличии" => "fas fa-times-circle",
+            "ожидается" => "fas fa-clock",
+            _ => "fas fa-box"
+        };
+    }
+}
 
 @section Scripts {
     <script>
@@ -222,25 +466,153 @@
             });
 
             const addToCartBtn = document.querySelector('.add-to-cart');
-            addToCartBtn.addEventListener('click', function() {
-                if (!this.disabled) {
-                    const originalText = this.querySelector('.btn-text').textContent;
-                    this.querySelector('.btn-text').textContent = 'Добавлено!';
-                    this.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', function() {
+                    if (!this.disabled) {
+                        const originalIcon = this.querySelector('i').className;
+                        const originalText = this.querySelector('.btn-text').textContent;
 
-                    setTimeout(() => {
-                        this.querySelector('.btn-text').textContent = originalText;
-                        this.style.background = '';
-                    }, 2000);
-                }
-            });
+                        this.querySelector('i').className = 'fas fa-check me-2';
+                        this.querySelector('.btn-text').textContent = 'Добавлено!';
+                        this.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+
+                        setTimeout(() => {
+                            this.querySelector('i').className = originalIcon;
+                            this.querySelector('.btn-text').textContent = originalText;
+                            this.style.background = '';
+                        }, 2000);
+                    }
+                });
+            }
 
             const wishlistBtn = document.querySelector('.wishlist-btn');
-            wishlistBtn.addEventListener('click', function() {
-                this.classList.toggle('active');
-                const heart = this.querySelector('.heart-icon');
-                heart.textContent = this.classList.contains('active') ? '💝' : '💖';
+            if (wishlistBtn) {
+                wishlistBtn.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    if (icon.classList.contains('far')) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = '#ec407a';
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        icon.style.color = '';
+                    }
+                });
+            }
+
+            const reviewForm = document.querySelector('.review-form');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', function(e) {
+                    const rating = this.querySelector('input[name="Rating"]:checked');
+                    const comment = this.querySelector('textarea[name="CommentRe"]');
+                    let hasErrors = false;
+
+                    document.querySelectorAll('.text-danger').forEach(error => {
+                        error.classList.add('d-none');
+                    });
+
+                    if (!rating) {
+                        document.querySelector('.rating-error').classList.remove('d-none');
+                        hasErrors = true;
+                    }
+
+                    if (!comment.value.trim()) {
+                        document.querySelector('.comment-error').classList.remove('d-none');
+                        hasErrors = true;
+                    }
+
+                    if (hasErrors) {
+                        e.preventDefault();
+
+                        const firstError = document.querySelector('.text-danger:not(.d-none)');
+                        if (firstError) {
+                            firstError.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+                        }
+                    }
+                });
+            }
+
+            const deleteForms = document.querySelectorAll('.delete-review-form');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    if (!confirm('Вы уверены, что хотите удалить свой отзыв? Это действие нельзя отменить.')) {
+                        e.preventDefault();
+                    }
+                });
             });
+
+            const starLabels = document.querySelectorAll('.star-label');
+            starLabels.forEach(label => {
+                label.addEventListener('mouseenter', function() {
+                    const stars = Array.from(document.querySelectorAll('.star-label'));
+                    const currentIndex = stars.indexOf(this);
+
+                    stars.forEach((star, index) => {
+                        if (index >= currentIndex) {
+                            star.querySelector('i').style.color = '#FFD700';
+                        }
+                    });
+                });
+
+                label.addEventListener('mouseleave', function() {
+                    const stars = document.querySelectorAll('.star-label');
+                    const checkedStar = document.querySelector('input[name="Rating"]:checked');
+
+                    stars.forEach(star => {
+                        star.querySelector('i').style.color = '#ddd';
+                    });
+
+                    if (checkedStar) {
+                        const checkedIndex = Array.from(stars).indexOf(checkedStar.nextElementSibling);
+                        stars.forEach((star, index) => {
+                            if (index >= checkedIndex) {
+                                star.querySelector('i').style.color = '#FFD700';
+                            }
+                        });
+                    }
+                });
+            });
+
+            const successMessage = '@TempData["Message"]';
+            const errorMessage = '@TempData["Error"]';
+
+            if (successMessage) {
+                console.log('✅ Сообщение об успехе:', successMessage);
+
+                if (reviewForm) {
+                    reviewForm.reset();
+
+                    document.querySelectorAll('.rating-input input[type="radio"]').forEach(radio => {
+                        radio.checked = false;
+                    });
+                    document.querySelectorAll('.star-label i').forEach(star => {
+                        star.style.color = '#ddd';
+                    });
+                }
+
+                setTimeout(() => {
+                    console.log('🔄 Обновление данных...');
+                }, 1000);
+            }
+
+            if (errorMessage) {
+                console.log('❌ Ошибка:', errorMessage);
+            }
+
+            function updateReviewsCounter() {
+                const reviews = document.querySelectorAll('.review-item');
+                const counter = document.querySelector('.reviews-count');
+                if (counter) {
+                    const count = reviews.length;
+                    counter.textContent = count + ' ' + (count === 1 ? 'отзыв' : count < 5 ? 'отзыва' : 'отзывов');
+                }
+            }
+
+            updateReviewsCounter();
         });
     </script>
 }

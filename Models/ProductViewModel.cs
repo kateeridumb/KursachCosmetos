@@ -15,25 +15,6 @@
         public List<string> ImageUrls { get; set; } = new List<string>();
         public List<ProductViewModel> RelatedProducts { get; set; } = new List<ProductViewModel>();
 
-        public string FormattedPrice => Price.ToString("C");
-        public string StockStatus
-        {
-            get
-            {
-                if (!IsAvailable || StockQuantity == 0) return "Нет в наличии";
-                if (StockQuantity < 10) return "Мало";
-                return "В наличии";
-            }
-        }
-        public string StockStatusClass
-        {
-            get
-            {
-                if (!IsAvailable || StockQuantity == 0) return "out-of-stock";
-                if (StockQuantity < 10) return "low-stock";
-                return "in-stock";
-            }
-        }
         public string CategoryName => CategoryId switch
         {
             1 => "Декоративная косметика",
@@ -55,7 +36,23 @@
             _ => "📦"
         };
 
+        public List<ReviewViewModel> Reviews { get; set; } = new List<ReviewViewModel>();
+        public int TotalReviews { get; set; }
         public double AverageRating { get; set; }
-        public int ReviewCount { get; set; }
+
+        public string FormattedPrice => Price.ToString("N2") + "₽";
+        public string StockStatus => StockQuantity switch
+        {
+            > 10 => "В наличии",
+            > 0 => "Мало",
+            _ => "Нет в наличии"
+        };
+        public string StockStatusClass => StockStatus switch
+        {
+            "В наличии" => "in-stock",
+            "Мало" => "low-stock",
+            _ => "out-of-stock"
+        };
+        public bool HasReviews => Reviews?.Any() == true;
     }
 }

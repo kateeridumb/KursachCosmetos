@@ -1,7 +1,7 @@
 ﻿@model CosmeticShopWeb.Models.LoginViewModel
 
 @{
-ViewData["Title"] = "Вход";
+    ViewData["Title"] = "Вход";
 }
 
 <link rel="stylesheet" href="~/css/login.css" />
@@ -17,14 +17,24 @@ ViewData["Title"] = "Вход";
         font-size: 14px;
     }
 
-    .validation-summary-errors ul {
-        margin: 0;
-        padding-left: 20px;
-    }
+        .validation-summary-errors ul {
+            margin: 0;
+            padding-left: 20px;
+        }
 
     .error-hidden {
         display: none !important;
     }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .remember-me input {
+            margin-right: 8px;
+        }
 </style>
 
 <div class="login-container">
@@ -32,60 +42,62 @@ ViewData["Title"] = "Вход";
         <h2 class="title">Вход в аккаунт</h2>
         <p class="subtitle">Добро пожаловать! Введите свои данные для входа ✨</p>
 
-    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
-    <form asp-action="Login" method="post" id="loginForm">
-        <div class="form-group">
-            <label asp-for="Username">Электронная почта</label>
-            <input asp-for="Username" class="form-control" type="email" placeholder="Введите Email" />
-            <span asp-validation-for="Username" class="text-danger error-hidden"></span>
-        </div>
+        <form asp-action="Login" method="post" id="loginForm">
+            <div class="form-group">
+                <label asp-for="Username">Электронная почта</label>
+                <input asp-for="Username" class="form-control" type="email" placeholder="Введите Email" />
+                <span asp-validation-for="Username" class="text-danger error-hidden"></span>
+            </div>
 
-        <div class="form-group">
-            <label asp-for="Password">Пароль</label>
-            <input asp-for="Password" class="form-control" type="password" placeholder="Введите пароль" />
-            <span asp-validation-for="Password" class="text-danger error-hidden"></span>
-        </div>
+            <div class="form-group">
+                <label asp-for="Password">Пароль</label>
+                <input asp-for="Password" class="form-control" type="password" placeholder="Введите пароль" />
+                <span asp-validation-for="Password" class="text-danger error-hidden"></span>
+            </div>
+
+            <div class="remember-me">
+                <input asp-for="RememberMe" type="checkbox" />
+                <label asp-for="RememberMe">Запомнить меня</label>
+            </div>
 
             <button type="submit" class="btn-submit">Войти</button>
 
-        <p class="login-footer text-black">
-            Нет аккаунта?
-            <a asp-controller="Account" asp-action="Register">Зарегистрироваться</a>
-        </p>
-    </form>
-</div>
-```
-
+            <p class="login-footer text-black">
+                Нет аккаунта?
+                <a asp-controller="Account" asp-action="Register">Зарегистрироваться</a>
+            </p>
+        </form>
+    </div>
 </div>
 
-@section Scripts { <partial name="_ValidationScriptsPartial" /> <script>
-document.addEventListener("DOMContentLoaded", function () {
-const form = document.getElementById("loginForm");
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("loginForm");
 
-```
-        function toggleErrorField(input) {
-            const fieldName = input.name;
-            const errorSpan = form.querySelector(`[data-valmsg-for="${fieldName}"]`);
-            if (!errorSpan) return;
+            function toggleErrorField(input) {
+                const fieldName = input.name;
+                const errorSpan = form.querySelector(`[data-valmsg-for="${fieldName}"]`);
+                if (!errorSpan) return;
 
-            if (!$(input).valid()) {
-                errorSpan.classList.remove("error-hidden");
-            } else {
-                errorSpan.classList.add("error-hidden");
+                if (!$(input).valid()) {
+                    errorSpan.classList.remove("error-hidden");
+                } else {
+                    errorSpan.classList.add("error-hidden");
+                }
             }
-        }
 
-        form.querySelectorAll("input").forEach(field => {
-            field.addEventListener("blur", function () {
-                toggleErrorField(this);
-            });
-            field.addEventListener("input", function () {
-                toggleErrorField(this);
+            form.querySelectorAll("input").forEach(field => {
+                field.addEventListener("blur", function () {
+                    toggleErrorField(this);
+                });
+                field.addEventListener("input", function () {
+                    toggleErrorField(this);
+                });
             });
         });
-    });
-</script>
-```
-
+    </script>
 }

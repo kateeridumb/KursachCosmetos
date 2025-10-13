@@ -4,11 +4,12 @@ using System.Diagnostics;
 
 namespace CosmeticShopWeb.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+           : base(configuration)
         {
             _logger = logger;
         }

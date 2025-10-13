@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var user = Context.Request.Cookies["UserAuth"];
+    var isAuthenticated = user != null;
+}
+<!DOCTYPE html>
 
 <html lang="ru">
 <head>
@@ -14,9 +18,10 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-    
+
 </head>
 <body>
+
     <header class="header-fixed">
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
@@ -33,23 +38,40 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Products" asp-action="Index">Товары</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Cart" asp-action="Index">
-                                🛒 Корзина
-                                <span class="cart-count badge bg-danger" style="display: none;">0</span>
-                            </a>
-                        </li>
+                        @if (isAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Cart" asp-action="Index">
+                                    🛒 Корзина
+                                    <span class="cart-count badge bg-danger" style="display: none;">0</span>
+                                </a>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Register">Регистрация</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Login">Вход</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Logout">Выход</a>
-                        </li>
+                        @if (isAuthenticated)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    👤 Профиль
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Мой профиль</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index">Мои заказы</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Выход</a></li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Register">Регистрация</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Вход</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -68,28 +90,33 @@
                 <span class="footer-brand">CosmeticShop</span>
                 <span class="footer-copyright">&copy; @DateTime.Now.Year — Красота и уход</span>
                 <div class="footer-links">
-                    <a href="#">Мяу</a>
-                    <a href="#">Ссылочка</a>
-                    <a href="#">Миу</a>
+                    <a href="#">Контакты</a>
+                    <a href="#">О нас</a>
+                    <a href="#">Помощь</a>
                 </div>
             </div>
         </div>
     </footer>
 
     @RenderSection("Scripts", required: false)
-    <script>
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/Cart/GetCartCount')
-                .then(response => response.json())
-                .then(data => {
-                    const cartCounter = document.querySelector('.cart-count');
-                    if (cartCounter) {
-                        cartCounter.textContent = data.count;
-                        cartCounter.style.display = data.count > 0 ? 'inline' : 'none';
-                    }
-                });
-        });
-    </script>
+    @if (isAuthenticated)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                fetch('/Cart/GetCartCount')
+                    .then(response => response.json())
+                    .then(data => {
+                        const cartCounter = document.querySelector('.cart-count');
+                        if (cartCounter) {
+                            cartCounter.textContent = data.count;
+                            cartCounter.style.display = data.count > 0 ? 'inline' : 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Ошибка загрузки корзины:', error);
+                    });
+            });
+        </script>
+    }
 </body>
 </html>

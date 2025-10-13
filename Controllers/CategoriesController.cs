@@ -4,13 +4,14 @@ using System.Text.Json;
 
 namespace CosmeticShopWeb.Controllers
 {
-    public class CategoriesController : Controller
+    public class CategoriesController : BaseController
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiBaseUrl;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public CategoriesController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public CategoriesController(ILogger<HomeController> logger, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+           : base(configuration)
         {
             _httpClient = httpClientFactory.CreateClient();
             _apiBaseUrl = configuration["BaseUrl"] ?? "https://localhost:5094/api/";

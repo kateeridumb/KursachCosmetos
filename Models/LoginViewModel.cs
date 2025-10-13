@@ -4,11 +4,13 @@ namespace CosmeticShopWeb.Models
 {
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "Введите логин")]
+        [Required(ErrorMessage = "Email обязателен")]
+        [EmailAddress(ErrorMessage = "Некорректный формат Email")]
         public string Username { get; set; }
 
-        [Required(ErrorMessage = "Введите пароль")]
-        [DataType(DataType.Password)]
+        [Required(ErrorMessage = "Пароль обязателен")]
         public string Password { get; set; }
+
+        public bool RememberMe { get; set; } 
     }
 }

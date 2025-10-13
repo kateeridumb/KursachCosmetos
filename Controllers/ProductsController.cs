@@ -1,16 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using CosmeticShopWeb.Models;
+﻿using CosmeticShopWeb.Models;
+using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using System.Text.Json;
 
 namespace CosmeticShopWeb.Controllers
 {
-    public class ProductsController : Controller
+    public class ProductsController : BaseController
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiBaseUrl;
         private readonly JsonSerializerOptions _jsonOptions;
 
         public ProductsController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+           : base(configuration) 
         {
             _httpClient = httpClientFactory.CreateClient();
             _apiBaseUrl = configuration["ApiSettings:BaseUrl"] ?? "https://localhost:5094/api/";
@@ -71,7 +73,6 @@ namespace CosmeticShopWeb.Controllers
         {
             try
             {
-                // Получаем продукт
                 var url = $"{_apiBaseUrl}products/{id}";
                 var response = await _httpClient.GetAsync(url);
 
@@ -86,7 +87,9 @@ namespace CosmeticShopWeb.Controllers
 
                 var product = apiResponse.Data;
 
-                // Подгрузка изображений
+                // Загружаем отзывы для продукта
+                await LoadProductReviews(product);
+
                 try
                 {
                     var imagesUrl = $"{_apiBaseUrl}images/product/{id}";
@@ -110,7 +113,6 @@ namespace CosmeticShopWeb.Controllers
                     product.MainImageUrl = "";
                 }
 
-                // Связанные товары
                 try
                 {
                     var relatedUrl = $"{_apiBaseUrl}products?categoryId={product.CategoryId}&pageSize=4";
@@ -140,6 +142,130 @@ namespace CosmeticShopWeb.Controllers
             {
                 return NotFound();
             }
+        }
+        private async Task LoadProductReviews(ProductViewModel product)
+        {
+            try
+            {
+                var reviewsUrl = $"{_apiBaseUrl}reviews/product/{product.IdProduct}";
+                Console.WriteLine($"🔍 Загрузка отзывов по URL: {reviewsUrl}");
+
+                var reviewsResponse = await _httpClient.GetAsync(reviewsUrl);
+                var responseContent = await reviewsResponse.Content.ReadAsStringAsync();
+
+                Console.WriteLine($"🔍 Статус загрузки отзывов: {reviewsResponse.StatusCode}");
+                Console.WriteLine($"🔍 Ответ загрузки отзывов: {responseContent}");
+
+                if (reviewsResponse.IsSuccessStatusCode)
+                {
+                    var reviewsApiResponse = JsonSerializer.Deserialize<ApiResponse<List<ReviewViewModel>>>(responseContent, _jsonOptions);
+
+                    if (reviewsApiResponse?.Success == true && reviewsApiResponse.Data != null)
+                    {
+                        product.Reviews = reviewsApiResponse.Data;
+                        product.TotalReviews = product.Reviews.Count;
+                        product.AverageRating = product.Reviews.Any() ?
+                            Math.Round(product.Reviews.Average(r => r.Rating), 1) : 0;
+
+                        Console.WriteLine($"✅ Загружено {product.Reviews.Count} отзывов, средний рейтинг: {product.AverageRating}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"❌ Ошибка в ответе API отзывов: {reviewsApiResponse?.Message}");
+                        SetEmptyReviews(product);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"❌ HTTP ошибка при загрузке отзывов: {reviewsResponse.StatusCode}");
+                    SetEmptyReviews(product);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"💥 EXCEPTION при загрузке отзывов: {ex.Message}");
+                SetEmptyReviews(product);
+            }
+        }
+        private void SetEmptyReviews(ProductViewModel product)
+        {
+            product.Reviews = new List<ReviewViewModel>();
+            product.TotalReviews = 0;
+            product.AverageRating = 0;
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddReview(CreateReviewViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Пожалуйста, исправьте ошибки в форме";
+                return RedirectToAction("Details", new { id = model.ProductId });
+            }
+
+            var currentUser = GetUserFromCookie();
+            if (currentUser == null)
+            {
+                TempData["Error"] = "Для добавления отзыва необходимо войти в систему";
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                Console.WriteLine($"=== ДОБАВЛЕНИЕ ОТЗЫВА ===");
+                Console.WriteLine($"👤 User: {currentUser.Id_User}, 🎯 Product: {model.ProductId}");
+
+                // ПРОВЕРКА СУЩЕСТВУЮЩЕГО ОТЗЫВА
+                var hasExistingReview = await UserHasReviewForProduct(currentUser.Id_User, model.ProductId);
+                Console.WriteLine($"🔍 Проверка отзыва: {hasExistingReview}");
+
+                if (hasExistingReview)
+                {
+                    TempData["Error"] = "Вы уже оставляли отзыв на этот товар";
+                    return RedirectToAction("Details", new { id = model.ProductId });
+                }
+
+                // ДОБАВЛЕНИЕ НОВОГО ОТЗЫВА
+                var reviewData = new
+                {
+                    productId = model.ProductId,
+                    userId = currentUser.Id_User,
+                    rating = model.Rating,
+                    commentRe = model.CommentRe
+                };
+
+                var json = JsonSerializer.Serialize(reviewData);
+                Console.WriteLine($"📤 Данные: {json}");
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var apiUrl = $"{_apiBaseUrl}reviews";
+
+                Console.WriteLine($"🌐 URL: {apiUrl}");
+                var response = await _httpClient.PostAsync(apiUrl, content);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"📥 Ответ: {response.StatusCode} - {responseContent}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Message"] = "✅ Ваш отзыв успешно добавлен!";
+
+                    await Task.Delay(100); 
+                }
+                else
+                {
+                    var errorResponse = JsonSerializer.Deserialize<ApiResponse<string>>(responseContent, _jsonOptions);
+                    TempData["Error"] = errorResponse?.Message ?? "Ошибка при добавлении отзыва";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"💥 Ошибка: {ex}");
+                TempData["Error"] = "Ошибка при добавлении отзыва";
+            }
+
+            return RedirectToAction("Details", new { id = model.ProductId });
         }
 
         public async Task<IActionResult> Featured()
@@ -201,6 +327,54 @@ namespace CosmeticShopWeb.Controllers
                 SelectedCategoryId = categoryId ?? 0,
                 SearchTerm = search ?? ""
             };
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteReview(int productId, int userId)
+        {
+            try
+            {
+                Console.WriteLine($"=== САЙТ: УДАЛЕНИЕ ОТЗЫВА ===");
+                Console.WriteLine($"Product: {productId}, User: {userId}");
+
+                var currentUser = GetUserFromCookie();
+                if (currentUser?.Id_User != userId)
+                {
+                    TempData["Error"] = "Можно удалять только свои отзывы";
+                    return RedirectToAction("Details", new { id = productId });
+                }
+
+                var url = $"{_apiBaseUrl}reviews/user/{userId}/product/{productId}";
+                Console.WriteLine($"🌐 DELETE запрос: {url}");
+
+                var response = await _httpClient.DeleteAsync(url);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine($"📥 Ответ DELETE: {response.StatusCode}");
+                Console.WriteLine($"📥 Содержимое: {responseContent}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Message"] = "✅ Ваш отзыв успешно удален!";
+
+                    Console.WriteLine("⏳ Ожидание синхронизации БД...");
+                    await Task.Delay(1000);
+                    Console.WriteLine("✅ Синхронизация завершена");
+                }
+                else
+                {
+                    var errorResponse = JsonSerializer.Deserialize<ApiResponse<string>>(responseContent, _jsonOptions);
+                    TempData["Error"] = errorResponse?.Message ?? "Ошибка при удалении отзыва";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"💥 EXCEPTION на сайте: {ex}");
+                TempData["Error"] = "Ошибка при удалении отзыва. Попробуйте позже.";
+            }
+
+            return RedirectToAction("Details", new { id = productId });
         }
     }
 }

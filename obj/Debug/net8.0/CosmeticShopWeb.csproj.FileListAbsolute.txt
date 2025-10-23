@@ -35,3 +35,15 @@ C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\CosmeticShopWeb.sourc
 C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\CosmeticShopWeb.csproj.AssemblyReference.cache
 C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\Newtonsoft.Json.dll
 C:\Users\PRO\source\repos\CosmeticShopWeb\obj\Debug\net8.0\Cosmetic.506FDD7A.Up2Date
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\BouncyCastle.Cryptography.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\ClosedXML.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\ClosedXML.Parser.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\ExcelNumberFormat.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\itextsharp.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\RBush.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\SixLabors.Fonts.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\System.IO.Packaging.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\System.Text.Encoding.CodePages.dll
+C:\Users\PRO\source\repos\CosmeticShopWeb\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Text.Encoding.CodePages.dll

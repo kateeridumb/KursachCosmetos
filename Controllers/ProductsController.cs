@@ -12,14 +12,14 @@ namespace CosmeticShopWeb.Controllers
         private readonly JsonSerializerOptions _jsonOptions;
 
         public ProductsController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
-           : base(configuration) 
+           : base(configuration)
         {
             _httpClient = httpClientFactory.CreateClient();
             _apiBaseUrl = configuration["ApiSettings:BaseUrl"] ?? "https://localhost:5094/api/";
             _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
 
-        private const int PageSize = 12;
+        private const int PageSize = 6;
 
         public async Task<IActionResult> Index(int? categoryId, string? search, int page = 1)
         {
@@ -41,18 +41,21 @@ namespace CosmeticShopWeb.Controllers
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
-                var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<ProductViewModel>>>(json, _jsonOptions);
+                var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<ProductApiModel>>>(json, _jsonOptions);
 
                 if (apiResponse?.Success != true || apiResponse.Data == null)
                 {
                     return View(await BuildEmptyListModel(categoryId, search));
                 }
 
+                var allImages = await GetAllImages();
+                var productsWithImages = await ConvertToProductViewModels(apiResponse.Data, allImages);
+
                 var categories = await GetCategoriesAsync();
 
                 var viewModel = new ProductListViewModel
                 {
-                    Products = apiResponse.Data,
+                    Products = productsWithImages,
                     Categories = categories,
                     SelectedCategoryId = categoryId ?? 0,
                     SearchTerm = search ?? "",
@@ -80,37 +83,30 @@ namespace CosmeticShopWeb.Controllers
                     return NotFound();
 
                 var json = await response.Content.ReadAsStringAsync();
-                var apiResponse = JsonSerializer.Deserialize<ApiResponse<ProductViewModel>>(json, _jsonOptions);
+                var apiResponse = JsonSerializer.Deserialize<ApiResponse<ProductApiModel>>(json, _jsonOptions);
 
                 if (apiResponse?.Success != true || apiResponse.Data == null)
                     return NotFound();
 
-                var product = apiResponse.Data;
+                var allImages = await GetAllImages();
+                var productImages = allImages.Where(img => img.ProductID == id).ToList();
+                var mainImage = productImages.FirstOrDefault();
+
+                var product = new ProductViewModel
+                {
+                    IdProduct = apiResponse.Data.IdProduct,
+                    CategoryId = apiResponse.Data.CategoryId,
+                    NamePr = apiResponse.Data.NamePr,
+                    DescriptionPr = apiResponse.Data.DescriptionPr ?? string.Empty,
+                    BrandPr = apiResponse.Data.BrandPr ?? string.Empty,
+                    Price = apiResponse.Data.Price,
+                    StockQuantity = apiResponse.Data.StockQuantity,
+                    IsAvailable = apiResponse.Data.IsAvailable,
+                    MainImageUrl = mainImage?.ImageURL ?? "/images/placeholder-product.jpg",
+                    ImageUrls = productImages.Select(img => img.ImageURL).ToList()
+                };
 
                 await LoadProductReviews(product);
-
-                try
-                {
-                    var imagesUrl = $"{_apiBaseUrl}images/product/{id}";
-                    var imagesResponse = await _httpClient.GetAsync(imagesUrl);
-
-                    if (imagesResponse.IsSuccessStatusCode)
-                    {
-                        var imagesJson = await imagesResponse.Content.ReadAsStringAsync();
-                        var imagesApi = JsonSerializer.Deserialize<ApiResponse<List<string>>>(imagesJson, _jsonOptions);
-
-                        if (imagesApi?.Success == true && imagesApi.Data != null)
-                        {
-                            product.ImageUrls = imagesApi.Data;
-                            product.MainImageUrl = product.ImageUrls.FirstOrDefault() ?? "";
-                        }
-                    }
-                }
-                catch
-                {
-                    product.ImageUrls = new List<string>();
-                    product.MainImageUrl = "";
-                }
 
                 try
                 {
@@ -120,13 +116,15 @@ namespace CosmeticShopWeb.Controllers
                     if (relatedResponse.IsSuccessStatusCode)
                     {
                         var relatedJson = await relatedResponse.Content.ReadAsStringAsync();
-                        var relatedApi = JsonSerializer.Deserialize<ApiResponse<List<ProductViewModel>>>(relatedJson, _jsonOptions);
+                        var relatedApi = JsonSerializer.Deserialize<ApiResponse<List<ProductApiModel>>>(relatedJson, _jsonOptions);
 
                         if (relatedApi?.Success == true && relatedApi.Data != null)
                         {
-                            product.RelatedProducts = relatedApi.Data
-                                .Where(p => p.IdProduct != product.IdProduct)
-                                .ToList();
+                            var relatedImages = await GetAllImages();
+                            product.RelatedProducts = await ConvertToProductViewModels(
+                                relatedApi.Data.Where(p => p.IdProduct != product.IdProduct).ToList(),
+                                relatedImages
+                            );
                         }
                     }
                 }
@@ -142,22 +140,97 @@ namespace CosmeticShopWeb.Controllers
                 return NotFound();
             }
         }
+
+        public async Task<IActionResult> Featured()
+        {
+            try
+            {
+                var url = $"{_apiBaseUrl}products/featured";
+                var response = await _httpClient.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<ProductApiModel>>>(json, _jsonOptions);
+
+                    if (apiResponse?.Success == true && apiResponse.Data != null)
+                    {
+                        var allImages = await GetAllImages();
+                        var productsWithImages = await ConvertToProductViewModels(apiResponse.Data, allImages);
+                        return View(productsWithImages);
+                    }
+                }
+
+                return View(new List<ProductViewModel>());
+            }
+            catch
+            {
+                return View(new List<ProductViewModel>());
+            }
+        }
+
+
+        private async Task<List<ProductViewModel>> ConvertToProductViewModels(List<ProductApiModel> products, List<ImageApiModel> allImages)
+        {
+            var productViewModels = new List<ProductViewModel>();
+
+            foreach (var productData in products)
+            {
+                var productImages = allImages.Where(img => img.ProductID == productData.IdProduct).ToList();
+                var mainImage = productImages.FirstOrDefault();
+
+                var productViewModel = new ProductViewModel
+                {
+                    IdProduct = productData.IdProduct,
+                    CategoryId = productData.CategoryId,
+                    NamePr = productData.NamePr,
+                    DescriptionPr = productData.DescriptionPr ?? string.Empty,
+                    BrandPr = productData.BrandPr ?? string.Empty,
+                    Price = productData.Price,
+                    StockQuantity = productData.StockQuantity,
+                    IsAvailable = productData.IsAvailable,
+                    MainImageUrl = mainImage?.ImageURL ?? "/images/placeholder-product.jpg",
+                    ImageUrls = productImages.Select(img => img.ImageURL).ToList()
+                };
+
+                productViewModels.Add(productViewModel);
+            }
+
+            return productViewModels;
+        }
+
+        private async Task<List<ImageApiModel>> GetAllImages()
+        {
+            try
+            {
+                var imagesResponse = await _httpClient.GetAsync($"{_apiBaseUrl}Images");
+
+                if (!imagesResponse.IsSuccessStatusCode)
+                    return new List<ImageApiModel>();
+
+                var imagesContent = await imagesResponse.Content.ReadAsStringAsync();
+                var imagesApiResponse = JsonSerializer.Deserialize<ApiResponse<List<ImageApiModel>>>(imagesContent, _jsonOptions);
+
+                return imagesApiResponse?.Success == true ? imagesApiResponse.Data : new List<ImageApiModel>();
+            }
+            catch (Exception)
+            {
+                return new List<ImageApiModel>();
+            }
+        }
+
+
         private async Task LoadProductReviews(ProductViewModel product)
         {
             try
             {
                 var reviewsUrl = $"{_apiBaseUrl}reviews/product/{product.IdProduct}";
-                Console.WriteLine($"🔍 Загрузка отзывов по URL: {reviewsUrl}");
-
                 var reviewsResponse = await _httpClient.GetAsync(reviewsUrl);
-                var responseContent = await reviewsResponse.Content.ReadAsStringAsync();
-
-                Console.WriteLine($"🔍 Статус загрузки отзывов: {reviewsResponse.StatusCode}");
-                Console.WriteLine($"🔍 Ответ загрузки отзывов: {responseContent}");
 
                 if (reviewsResponse.IsSuccessStatusCode)
                 {
-                    var reviewsApiResponse = JsonSerializer.Deserialize<ApiResponse<List<ReviewViewModel>>>(responseContent, _jsonOptions);
+                    var reviewsJson = await reviewsResponse.Content.ReadAsStringAsync();
+                    var reviewsApiResponse = JsonSerializer.Deserialize<ApiResponse<List<ReviewViewModel>>>(reviewsJson, _jsonOptions);
 
                     if (reviewsApiResponse?.Success == true && reviewsApiResponse.Data != null)
                     {
@@ -165,27 +238,23 @@ namespace CosmeticShopWeb.Controllers
                         product.TotalReviews = product.Reviews.Count;
                         product.AverageRating = product.Reviews.Any() ?
                             Math.Round(product.Reviews.Average(r => r.Rating), 1) : 0;
-
-                        Console.WriteLine($"✅ Загружено {product.Reviews.Count} отзывов, средний рейтинг: {product.AverageRating}");
                     }
                     else
                     {
-                        Console.WriteLine($"❌ Ошибка в ответе API отзывов: {reviewsApiResponse?.Message}");
                         SetEmptyReviews(product);
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"❌ HTTP ошибка при загрузке отзывов: {reviewsResponse.StatusCode}");
                     SetEmptyReviews(product);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"💥 EXCEPTION при загрузке отзывов: {ex.Message}");
                 SetEmptyReviews(product);
             }
         }
+
         private void SetEmptyReviews(ProductViewModel product)
         {
             product.Reviews = new List<ReviewViewModel>();
@@ -212,11 +281,7 @@ namespace CosmeticShopWeb.Controllers
 
             try
             {
-                Console.WriteLine($"=== ДОБАВЛЕНИЕ ОТЗЫВА ===");
-                Console.WriteLine($"👤 User: {currentUser.Id_User}, 🎯 Product: {model.ProductId}");
-
                 var hasExistingReview = await UserHasReviewForProduct(currentUser.Id_User, model.ProductId);
-                Console.WriteLine($"🔍 Проверка отзыва: {hasExistingReview}");
 
                 if (hasExistingReview)
                 {
@@ -233,60 +298,29 @@ namespace CosmeticShopWeb.Controllers
                 };
 
                 var json = JsonSerializer.Serialize(reviewData);
-                Console.WriteLine($"📤 Данные: {json}");
-
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var apiUrl = $"{_apiBaseUrl}reviews";
 
-                Console.WriteLine($"🌐 URL: {apiUrl}");
                 var response = await _httpClient.PostAsync(apiUrl, content);
-
-                var responseContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"📥 Ответ: {response.StatusCode} - {responseContent}");
 
                 if (response.IsSuccessStatusCode)
                 {
                     TempData["Message"] = "✅ Ваш отзыв успешно добавлен!";
-
-                    await Task.Delay(100); 
+                    await Task.Delay(100);
                 }
                 else
                 {
-                    var errorResponse = JsonSerializer.Deserialize<ApiResponse<string>>(responseContent, _jsonOptions);
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorResponse = JsonSerializer.Deserialize<ApiResponse<string>>(errorContent, _jsonOptions);
                     TempData["Error"] = errorResponse?.Message ?? "Ошибка при добавлении отзыва";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"💥 Ошибка: {ex}");
                 TempData["Error"] = "Ошибка при добавлении отзыва";
             }
 
             return RedirectToAction("Details", new { id = model.ProductId });
-        }
-
-        public async Task<IActionResult> Featured()
-        {
-            try
-            {
-                var url = $"{_apiBaseUrl}products/featured";
-                var response = await _httpClient.GetAsync(url);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<ProductViewModel>>>(json, _jsonOptions);
-
-                    if (apiResponse?.Success == true && apiResponse.Data != null)
-                        return View(apiResponse.Data);
-                }
-
-                return View(new List<ProductViewModel>());
-            }
-            catch
-            {
-                return View(new List<ProductViewModel>());
-            }
         }
 
         private async Task<List<CategoryViewModel>> GetCategoriesAsync()
@@ -332,9 +366,6 @@ namespace CosmeticShopWeb.Controllers
         {
             try
             {
-                Console.WriteLine($"=== САЙТ: УДАЛЕНИЕ ОТЗЫВА ===");
-                Console.WriteLine($"Product: {productId}, User: {userId}");
-
                 var currentUser = GetUserFromCookie();
                 if (currentUser?.Id_User != userId)
                 {
@@ -343,31 +374,22 @@ namespace CosmeticShopWeb.Controllers
                 }
 
                 var url = $"{_apiBaseUrl}reviews/user/{userId}/product/{productId}";
-                Console.WriteLine($"🌐 DELETE запрос: {url}");
-
                 var response = await _httpClient.DeleteAsync(url);
-                var responseContent = await response.Content.ReadAsStringAsync();
-
-                Console.WriteLine($"📥 Ответ DELETE: {response.StatusCode}");
-                Console.WriteLine($"📥 Содержимое: {responseContent}");
 
                 if (response.IsSuccessStatusCode)
                 {
                     TempData["Message"] = "✅ Ваш отзыв успешно удален!";
-
-                    Console.WriteLine("⏳ Ожидание синхронизации БД...");
                     await Task.Delay(1000);
-                    Console.WriteLine("✅ Синхронизация завершена");
                 }
                 else
                 {
-                    var errorResponse = JsonSerializer.Deserialize<ApiResponse<string>>(responseContent, _jsonOptions);
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    var errorResponse = JsonSerializer.Deserialize<ApiResponse<string>>(errorContent, _jsonOptions);
                     TempData["Error"] = errorResponse?.Message ?? "Ошибка при удалении отзыва";
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"💥 EXCEPTION на сайте: {ex}");
                 TempData["Error"] = "Ошибка при удалении отзыва. Попробуйте позже.";
             }
 

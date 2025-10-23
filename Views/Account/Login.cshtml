@@ -57,14 +57,10 @@
                 <span asp-validation-for="Password" class="text-danger error-hidden"></span>
             </div>
 
-            <div class="remember-me">
-                <input asp-for="RememberMe" type="checkbox" />
-                <label asp-for="RememberMe">Запомнить меня</label>
-            </div>
-
             <button type="submit" class="btn-submit">Войти</button>
 
             <p class="login-footer text-black">
+                <a asp-action="ForgotPassword">Забыли пароль?</a> |
                 Нет аккаунта?
                 <a asp-controller="Account" asp-action="Register">Зарегистрироваться</a>
             </p>

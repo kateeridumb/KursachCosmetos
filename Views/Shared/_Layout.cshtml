@@ -1,6 +1,38 @@
-﻿@{
-    var user = Context.Request.Cookies["UserAuth"];
-    var isAuthenticated = user != null;
+﻿@using Newtonsoft.Json
+@using CosmeticShopWeb.Models
+@using CosmeticShopWeb.Controllers
+@using System.Text
+@{
+    var encryptedData = Context.Request.Cookies["UserAuth"];
+    var isAuthenticated = !string.IsNullOrEmpty(encryptedData);
+    var isAdmin = false;
+    var isManager = false;
+
+    if (isAuthenticated)
+    {
+        try
+        {
+            // ДЕКОДИРУЕМ из base64
+            var userJson = Encoding.UTF8.GetString(Convert.FromBase64String(encryptedData));
+            var user = JsonConvert.DeserializeObject<BaseController.UserLoginResponse>(userJson);
+            isAdmin = user?.RoleUs == "Администратор";
+            isManager = user?.RoleUs == "Менеджер";
+
+            // ДЛЯ ОТЛАДКИ - выведем в консоль
+            <script>
+                console.log('User Role:', '@user?.RoleUs');
+                console.log('Is Admin:', '@isAdmin');
+                console.log('Is Manager:', '@isManager');
+            </script>
+        }
+        catch (Exception ex)
+        {
+            isAdmin = false;
+            isManager = false;
+            // Для отладки
+            <script>console.error('Error decoding user:', '@ex.Message');</script>
+        }
+    }
 }
 <!DOCTYPE html>
 
@@ -19,19 +51,21 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
+    <script src="js/site.js"></script>
+
 </head>
 <body>
 
     <header class="header-fixed">
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">CosmeticShop</a>
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Cosmetics</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarMain">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Главная</a>
                         </li>
@@ -52,12 +86,24 @@
                         @if (isAuthenticated)
                         {
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                                     👤 Профиль
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Мой профиль</a></li>
                                     <li><a class="dropdown-item" asp-controller="Order" asp-action="MyOrders">Мои заказы</a></li>
+
+                                    @if (isAdmin)
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="Admin" asp-action="Index">⚙️ Админ-панель</a></li>
+                                    }
+                                    @if (isManager)
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" asp-controller="Manager" asp-action="Index">⚙️ Менеджер-панель</a></li>
+                                    }
+
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Выход</a></li>
                                 </ul>

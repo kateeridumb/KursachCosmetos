@@ -1,0 +1,190 @@
+﻿/* manager.css - Естественные розовые цвета */
+
+:root {
+    --bs-pink: #e83e8c;
+    --bs-pink-rgb: 232, 62, 140;
+    --bs-light-pink: #f8d7da;
+    --bs-dark-pink: #d63384;
+}
+
+/* Кастомные розовые классы */
+.bg-pink {
+    background-color: var(--bs-pink) !important;
+}
+
+.border-pink {
+    border-color: var(--bs-pink) !important;
+}
+
+.text-pink {
+    color: var(--bs-pink) !important;
+}
+
+.btn-pink {
+    background-color: var(--bs-pink);
+    border-color: var(--bs-pink);
+    color: white;
+}
+
+    .btn-pink:hover {
+        background-color: var(--bs-dark-pink);
+        border-color: var(--bs-dark-pink);
+        color: white;
+    }
+
+.btn-outline-pink {
+    color: var(--bs-pink);
+    border-color: var(--bs-pink);
+}
+
+    .btn-outline-pink:hover {
+        background-color: var(--bs-pink);
+        border-color: var(--bs-pink);
+        color: white;
+    }
+
+.table-pink {
+    background-color: var(--bs-pink);
+    color: white;
+}
+
+/* Общие стили */
+.manager-dashboard {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fefefe;
+}
+
+/* Карточки */
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+}
+
+    .card:hover {
+        box-shadow: 0 6px 12px rgba(232, 62, 140, 0.15);
+        transform: translateY(-2px);
+    }
+
+.card-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+}
+
+/* Таблица */
+.table-responsive {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th {
+    font-weight: 600;
+    text-transform: none;
+    font-size: 0.9rem;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(248, 215, 218, 0.3);
+}
+
+/* Изображения товаров */
+.product-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+/* Статус товара */
+.status-select {
+    width: 120px;
+    border: 1px solid #ced4da;
+}
+
+    .status-select:focus {
+        border-color: var(--bs-pink);
+        box-shadow: 0 0 0 0.2rem rgba(232, 62, 140, 0.25);
+    }
+
+/* Низкие остатки */
+.low-stock {
+    color: #dc3545 !important;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+}
+
+/* Empty state */
+.empty-state {
+    background: white;
+    border-radius: 12px;
+    padding: 3rem !important;
+    border: 2px dashed var(--bs-light-pink);
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: var(--bs-pink);
+    opacity: 0.7;
+}
+
+/* Анимации */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+.card, .table-responsive, .alert {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+        .btn-group .btn {
+            margin: 2px 0;
+        }
+}
+
+/* Кастомный скроллбар */
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: var(--bs-pink);
+    border-radius: 3px;
+}
+
+    .table-responsive::-webkit-scrollbar-thumb:hover {
+        background: var(--bs-dark-pink);
+    }

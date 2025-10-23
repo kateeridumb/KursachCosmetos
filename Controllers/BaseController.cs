@@ -21,7 +21,11 @@ namespace CosmeticShopWeb.Controllers
                 return GetUserFromCookie();
             }
         }
-
+        protected bool IsAdmin()
+        {
+            var user = GetUserFromCookie();
+            return user?.RoleUs == "Администратор"; 
+        }
         protected bool IsAuthenticated => CurrentUser != null;
 
         protected UserLoginResponse GetUserFromCookie()

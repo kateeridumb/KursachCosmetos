@@ -200,23 +200,47 @@
     padding: 8px 0;
 }
 
+/* Исправленные стили для изображений в корзине */
 .cart-item-image {
     width: 70px;
     height: 70px;
-    object-fit: cover;
+    object-fit: contain; /* Изменено с cover на contain */
     border-radius: 10px;
     border: 2px solid white;
     transition: all 0.3s ease;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* Фон для прозрачных изображений */
+    padding: 5px; /* Отступ для маленьких изображений */
 }
 
 .cart-item:hover .cart-item-image {
     transform: scale(1.05);
 }
 
+/* Заглушка для изображений */
+.cart-item-image:not([src]),
+.cart-item-image[src=""],
+.cart-item-image[src*="placeholder"] {
+    background: linear-gradient(135deg, #f8bbd0, #f48fb1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+    .cart-item-image:not([src])::after,
+    .cart-item-image[src=""]::after,
+    .cart-item-image[src*="placeholder"]::after {
+        content: '📦';
+        font-size: 1.5rem;
+        color: white;
+        opacity: 0.8;
+    }
+
 .cart-item-name {
     font-weight: 600;
     color: #495057;
     font-size: 1rem;
+    flex: 1;
 }
 
 .cart-price,
@@ -748,6 +772,7 @@
     display: none !important;
 }
 
+/* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
     .cart-header {
         flex-direction: column;
@@ -787,6 +812,23 @@
         flex-direction: column;
         text-align: center;
     }
+
+    /* Адаптивность для изображений на мобильных */
+    .cart-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .cart-item-image {
+        width: 60px;
+        height: 60px;
+    }
+
+    .cart-item-name {
+        text-align: center;
+        font-size: 0.9rem;
+    }
 }
 
 .cart-table thead th {
@@ -821,6 +863,7 @@
     display: inline-block;
 }
 
+/* Поддержка reduced-motion */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation-duration: 0.01ms !important;
@@ -829,9 +872,30 @@
     }
 }
 
+/* Доступность */
 .btn-cart-primary:focus,
 .btn-cart-secondary:focus,
 .cart-quantity-input:focus {
     outline: 2px solid #ec407a;
     outline-offset: 1px;
 }
+
+/* Улучшенная обработка ошибок изображений */
+.cart-item-image {
+    position: relative;
+}
+
+    .cart-item-image.error {
+        background: linear-gradient(135deg, #f8bbd0, #f48fb1);
+    }
+
+        .cart-item-image.error::before {
+            content: '📦';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: white;
+            opacity: 0.8;
+        }

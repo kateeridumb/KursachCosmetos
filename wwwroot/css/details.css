@@ -74,8 +74,27 @@
     padding: 30px;
     box-shadow: 0 20px 60px rgba(216, 27, 96, 0.1);
     border: 1px solid rgba(216, 27, 96, 0.1);
+    min-height: 460px; /* Минимальная высота для контейнера */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+/* Основное изображение товара */
+.product-main-img {
+    width: 100%;
+    height: 400px;
+    object-fit: contain; /* Важно: contain вместо cover */
+    border-radius: 16px;
+    background: white;
+    transition: transform 0.3s ease;
+}
+
+    .product-main-img:hover {
+        transform: scale(1.02);
+    }
+
+/* Заглушка для основного изображения */
 .image-placeholder {
     width: 100%;
     height: 400px;
@@ -90,6 +109,7 @@
 
 .product-icon {
     font-size: 8rem;
+    color: white;
     opacity: 0.8;
     z-index: 2;
     position: relative;
@@ -104,6 +124,12 @@
     background: linear-gradient(45deg, rgba(248, 187, 208, 0.3), rgba(244, 143, 177, 0.3));
 }
 
+/* Скрытие placeholder когда есть изображение */
+.product-main-img:not([src=""]) ~ .image-placeholder {
+    display: none !important;
+}
+
+/* Бейджи и действия */
 .product-badge {
     position: absolute;
     top: 20px;
@@ -113,7 +139,7 @@
     font-size: 0.8rem;
     font-weight: 600;
     color: white;
-    z-index: 3;
+    z-index: 10; /* Поверх изображения */
 }
 
     .product-badge.in-stock {
@@ -134,7 +160,7 @@
     right: 20px;
     display: flex;
     gap: 10px;
-    z-index: 3;
+    z-index: 10; /* Поверх изображения */
 }
 
 .action-btn {
@@ -333,19 +359,6 @@
         transform: none;
     }
 
-.btn-icon {
-    font-size: 1.2rem;
-}
-
-.btn-arrow {
-    font-size: 1.2rem;
-    transition: transform 0.3s ease;
-}
-
-.btn-secondary:hover .btn-arrow {
-    transform: translateX(5px);
-}
-
 /* Product Meta */
 .product-meta {
     display: flex;
@@ -361,10 +374,6 @@
     background: rgba(255, 255, 255, 0.6);
     border-radius: 12px;
     border: 1px solid rgba(216, 27, 96, 0.1);
-}
-
-.meta-icon {
-    font-size: 1.2rem;
 }
 
 .meta-text {
@@ -503,44 +512,6 @@
     font-weight: 600;
 }
 
-/* Reviews */
-.reviews-placeholder {
-    text-align: center;
-    padding: 60px 20px;
-}
-
-.placeholder-icon {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    opacity: 0.5;
-}
-
-.reviews-placeholder h4 {
-    color: #880e4f;
-    margin-bottom: 10px;
-}
-
-.reviews-placeholder p {
-    color: #666;
-    margin-bottom: 20px;
-}
-
-.btn-outline {
-    padding: 12px 24px;
-    border: 2px solid #d81b60;
-    background: none;
-    color: #d81b60;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-    .btn-outline:hover {
-        background: #d81b60;
-        color: white;
-    }
-
 /* Related Products */
 .related-products {
     padding: 80px 0;
@@ -574,290 +545,131 @@
         gap: 12px;
     }
 
+/* Стили для карточек похожих товаров */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(236, 64, 122, 0.15);
+        border-color: #ec407a;
+    }
+
+.product-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    background: white;
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.05);
+}
+
+/* Заглушки для похожих товаров */
+.product-image .image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f8bbd0, #f48fb1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-image .product-icon {
+    font-size: 3rem;
+    color: white;
+    opacity: 0.8;
+}
+
+/* Скрытие placeholder когда есть изображение в похожих товарах */
+.product-img:not([src=""]) ~ .image-placeholder {
+    display: none !important;
+}
+
+.product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    color: #880e4f;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ec407a;
+    margin-bottom: 15px;
+}
+
+.btn-view {
+    display: inline-block;
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #ec407a, #d81b60);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin-top: auto;
+}
+
+    .btn-view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(216, 27, 96, 0.3);
+    }
+
 .related-placeholder {
     text-align: center;
     padding: 60px 20px;
     background: white;
     border-radius: 20px;
     border: 2px dashed rgba(216, 27, 96, 0.2);
+    grid-column: 1 / -1;
 }
 
 .placeholder-content {
     opacity: 0.6;
 }
 
-@media (max-width: 768px) {
-    .product-title {
-        font-size: 2rem;
-    }
-
-    .action-buttons {
-        flex-direction: column;
-    }
-
-    .btn-primary, .btn-secondary {
-        min-width: auto;
-        justify-content: center;
-    }
-
-    .tabs-header {
-        flex-direction: column;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .section-header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-}
-/* Стили для системы отзывов */
-.reviews-section {
-    padding: 2rem 0;
-}
-
-.reviews-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid rgba(236, 64, 122, 0.1);
-}
-
-.rating-summary {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-.average-rating {
-    text-align: center;
-}
-
-.rating-number {
-    font-size: 3rem;
-    font-weight: 800;
-    color: #ec407a;
-    display: block;
-    line-height: 1;
-}
-
-.stars {
-    margin: 0.5rem 0;
-}
-
-    .stars i {
-        font-size: 1.2rem;
-        color: #ddd;
-        margin: 0 2px;
-        transition: all 0.3s ease;
-    }
-
-        .stars i.active {
-            color: #FFD700;
-        }
-
-.reviews-count {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-/* Форма отзыва */
-.add-review-form {
-    background: rgba(248, 250, 252, 0.8);
-    padding: 2rem;
-    border-radius: 15px;
-    border: 1px solid rgba(216, 27, 96, 0.15);
-    margin-bottom: 2rem;
-}
-
-    .add-review-form h4 {
-        color: #880e4f;
-        margin-bottom: 1.5rem;
-    }
-
-.rating-input {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin: 1rem 0;
-}
-
-    .rating-input input {
-        display: none;
-    }
-
-.star-label {
-    cursor: pointer;
-    font-size: 2rem;
-    color: #ddd;
-    transition: all 0.3s ease;
-}
-
-    .star-label:hover,
-    .star-label:hover ~ .star-label {
-        color: #FFD700;
-    }
-
-.rating-input input:checked ~ .star-label {
-    color: #FFD700;
-}
-
-.review-textarea {
-    border: 2px solid rgba(216, 27, 96, 0.2);
-    border-radius: 12px;
-    padding: 1rem;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    resize: vertical;
-    min-height: 120px;
-}
-
-    .review-textarea:focus {
-        border-color: #ec407a;
-        box-shadow: 0 0 0 0.2rem rgba(236, 64, 122, 0.25);
-    }
-
-.submit-review {
-    margin-top: 1rem;
-}
-
-.login-prompt {
-    background: rgba(236, 64, 122, 0.1);
-    border: 1px solid rgba(236, 64, 122, 0.2);
-    border-radius: 10px;
-    padding: 1.5rem;
-    text-align: center;
-    color: #880e4f;
-}
-
-.login-link {
-    color: #ec407a;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-    .login-link:hover {
-        text-decoration: underline;
-    }
-
-.reviews-list {
-    space-y: 1.5rem;
-}
-
-.review-item {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    border: 1px solid rgba(216, 27, 96, 0.1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-}
-
-    .review-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-}
-
-.reviewer-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.reviewer-avatar {
-    font-size: 2.5rem;
-    color: #ec407a;
-}
-
-.reviewer-details {
-    display: flex;
-    flex-direction: column;
-}
-
-.reviewer-name {
-    font-weight: 600;
-    color: #333;
-}
-
-.review-date {
-    font-size: 0.9rem;
-    color: #666;
-}
-
-.review-rating {
-    display: flex;
-    gap: 0.25rem;
-}
-
-    .review-rating i {
-        font-size: 1rem;
-        color: #FFD700;
-    }
-
-.review-content p {
-    margin: 0;
-    line-height: 1.6;
-    color: #555;
-}
-
-.no-reviews {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-}
-
-    .no-reviews .placeholder-icon {
-        font-size: 4rem;
-        color: #ec407a;
-        margin-bottom: 1rem;
-    }
-
-.rating-error,
-.comment-error {
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-}
-
-.d-none {
-    display: none !important;
-}
-
-@media (max-width: 768px) {
-    .reviews-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-
-    .rating-summary {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .review-header {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .rating-input {
-        justify-content: center;
-    }
-}
-
-/* Стили для системы отзывов */
+/* Reviews Section (остается без изменений) */
 .reviews-section {
     padding: 2rem 0;
 }
@@ -1048,10 +860,6 @@
     color: #ddd;
 }
 
-.review-rating .fas.fa-star:not(.active) {
-    color: #ddd;
-}
-
 .review-content p {
     margin: 0;
     line-height: 1.6;
@@ -1080,27 +888,6 @@
     display: none !important;
 }
 
-@media (max-width: 768px) {
-    .reviews-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-
-    .rating-summary {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .review-header {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .rating-input {
-        justify-content: center;
-    }
-}
 /* Стили для собственных отзывов */
 .own-review {
     border: 2px solid #4caf50;
@@ -1146,17 +933,84 @@
         transform: translateY(-1px);
     }
 
-/* Адаптивность для мобильных */
 @media (max-width: 768px) {
+    .product-title {
+        font-size: 2rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .btn-primary, .btn-secondary {
+        min-width: auto;
+        justify-content: center;
+    }
+
+    .tabs-header {
+        flex-direction: column;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .main-image {
+        min-height: 300px;
+        padding: 20px;
+    }
+
+    .product-main-img {
+        height: 260px;
+    }
+
+    .image-placeholder {
+        height: 260px;
+    }
+
+    .product-icon {
+        font-size: 4rem;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .product-image {
+        height: 150px;
+    }
+
+    .reviews-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .rating-summary {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .review-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .rating-input {
+        justify-content: center;
+    }
+
     .review-actions {
         flex-direction: row;
         justify-content: space-between;
         width: 100%;
         margin-top: 10px;
-    }
-
-    .review-header {
-        flex-direction: column;
-        align-items: flex-start;
     }
 }

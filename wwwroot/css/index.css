@@ -592,7 +592,7 @@
         font-size: 1rem;
     }
 }
-/* Дополнительные стили для иконок */
+
 .feature-icon i {
     font-size: 3.5rem;
     transition: all 0.3s ease;
@@ -641,7 +641,6 @@
     transform: translateX(3px);
 }
 
-/* Анимация пульсации для иконок */
 @keyframes iconPulse {
     0%, 100% {
         transform: scale(1);
@@ -660,7 +659,6 @@
     animation: none;
 }
 
-/* Цвета иконок в категориях */
 .category-badge i {
     font-size: 0.7rem;
 }

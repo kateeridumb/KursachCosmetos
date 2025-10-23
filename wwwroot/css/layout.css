@@ -205,7 +205,6 @@
 .content-wrapper {
     flex: 1;
     margin-top: 80px;
-    margin-bottom: 40px; 
     padding: 20px;
     box-sizing: border-box;
     min-height: calc(100vh - 120px);

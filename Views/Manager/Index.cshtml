@@ -1,0 +1,460 @@
+﻿@model CosmeticShopWeb.Models.ManagerDashboardViewModel
+@{
+    ViewData["Title"] = "Панель менеджера";
+}
+
+<link rel="stylesheet" href="~/css/manager.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-pink">📈 Панель менеджера</h1>
+            <p class="text-muted">Аналитика и управление товарами</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>✅ @TempData["Success"]</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>❌ @TempData["Error"]</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Диаграммы -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card border-pink">
+                <div class="card-header bg-pink text-white">
+                    <h5 class="mb-0">💰 Продажи по месяцам</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-pink">
+                <div class="card-header bg-pink text-white">
+                    <h5 class="mb-0">📦 Остатки на складе</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="stockChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-pink">
+                <div class="card-header bg-pink text-white">
+                    <h5 class="mb-0">🏷️ Товары по категориям</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Управление товарами -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-pink">🛍️ Управление товарами</h4>
+                <div>
+                    <span class="badge bg-pink me-2">Всего: @Model.Products.Count</span>
+                    <a asp-controller="Products" asp-action="Create" class="btn btn-pink btn-sm">
+                        ➕ Добавить товар
+                    </a>
+                </div>
+            </div>
+
+            @if (!Model.Products.Any())
+            {
+                <div class="empty-state text-center py-5">
+                    <div class="empty-icon mb-3">🛍️</div>
+                    <h5 class="text-pink">Товары не найдены</h5>
+                    <p class="text-muted">Здесь будут отображаться товары магазина</p>
+                    <a asp-controller="Products" asp-action="Create" class="btn btn-pink mt-3">
+                        ➕ Добавить первый товар
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-pink">
+                            <tr>
+                                <th>ID</th>
+                                <th>Изображение</th>
+                                <th>Название</th>
+                                <th>Цена</th>
+                                <th>Категория</th>
+                                <th>Остаток</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var product in Model.Products.OrderByDescending(p => p.IdProduct))
+                            {
+                                <tr>
+                                    <td>@product.IdProduct</td>
+                                    <td>
+                                        <img src="@product.MainImageUrl" alt="@product.NamePr"
+                                             class="product-image"
+                                             onerror="this.onerror=null; this.src='/images/placeholder-product.jpg';"
+                                             loading="lazy">
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">@product.NamePr</div>
+                                        @if (!string.IsNullOrEmpty(product.BrandPr))
+                                        {
+                                            <small class="text-muted">@product.BrandPr</small>
+                                        }
+                                    </td>
+                                    <td>@product.FormattedPrice</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            @product.CategoryIcon @product.CategoryName
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="@(product.StockQuantity < 10 ? "text-danger fw-bold low-stock" : "text-success")">
+                                            @product.StockQuantity
+                                            @if (product.StockQuantity < 10)
+                                            {
+                                                <br />
+                                                <small class="text-danger">Мало</small>
+                                            }
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <form asp-action="UpdateProductStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="productId" value="@product.IdProduct" />
+                                            <select name="isAvailable" class="form-select form-select-sm status-select @(product.IsAvailable ? "border-success" : "border-danger")"
+                                                    onchange="this.form.submit()">
+                                                <option value="true" selected="@product.IsAvailable">🟢 Активен</option>
+                                                <option value="false" selected="@(!product.IsAvailable)">🔴 Неактивен</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.IdProduct"
+                                               class="btn btn-outline-pink" title="Редактировать">
+                                                ✏️
+                                            </a>
+                                            <form asp-action="DeleteProduct" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@product.IdProduct" />
+                                                <button type="submit" class="btn btn-outline-danger"
+                                                        title="Удалить"
+                                                        onclick="return confirm('Вы уверены, что хотите удалить товар \" @product.NamePr\"?')">
+                                                    🗑️
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Статистика -->
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="text-pink">@Model.Products.Count(p => p.IsAvailable)</h5>
+                                <small class="text-muted">Активных товаров</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="text-pink">@Model.Products.Count(p => !p.IsAvailable)</h5>
+                                <small class="text-muted">Неактивных товаров</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="text-pink">@Model.Products.Count(p => p.StockQuantity < 10)</h5>
+                                <small class="text-muted">Мало на складе</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="text-pink">@Model.Products.Count(p => p.StockQuantity == 0)</h5>
+                                <small class="text-muted">Нет в наличии</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-pink">
+                <div class="card-header bg-pink text-white">
+                    <h5 class="mb-0">📊 Экспорт отчетов</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <form asp-action="ExportToExcel" method="post" class="d-inline w-100">
+                                <button type="submit" class="btn btn-success btn-lg w-100">
+                                    📈 Экспорт в Excel
+                                </button>
+                                <small class="form-text text-muted d-block mt-2">
+                                    Таблицы с данными товаров, аналитикой продаж, остатками на складе и категориями
+                                </small>
+                            </form>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <form asp-action="ExportToPdf" method="post" class="d-inline w-100">
+                                <button type="submit" class="btn btn-danger btn-lg w-100">
+                                    📊 Экспорт в PDF
+                                </button>
+                                <small class="form-text text-muted d-block mt-2">
+                                    Структурированный отчет со статистикой, таблицами продаж и аналитикой
+                                </small>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3">
+                        <strong>💡 Информация:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Excel содержит детальные данные о товарах и аналитику в табличном формате</li>
+                            <li>PDF содержит структурированный отчет с общей статистикой и аналитикой</li>
+                            <li>Оба формата включают данные о продажах, остатках на складе и категориях товаров</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Ждем полной загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация диаграмм
+            initializeCharts();
+
+            // Анимация появления элементов
+            initializeAnimations();
+
+            // Автообновление страницы каждые 2 минуты
+            setInterval(() => {
+                console.log('Автообновление панели менеджера...');
+                location.reload();
+            }, 120000);
+
+            // Обработка ошибок загрузки изображений
+            const images = document.querySelectorAll('.product-image');
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    console.log('Ошибка загрузки изображения:', this.src);
+                    this.src = '/images/placeholder-product.jpg';
+                });
+
+                // Логирование успешной загрузки
+                img.addEventListener('load', function() {
+                    console.log('Изображение загружено:', this.src);
+                });
+            });
+        });
+
+        function initializeCharts() {
+            // Розовая цветовая палитра
+            const pinkColors = {
+                light: '#f8d7da',
+                medium: '#e83e8c',
+                dark: '#d63384',
+                accent: '#c2185b',
+                soft: '#fce4ec'
+            };
+
+            // Продажи по месяцам
+            const salesChartEl = document.getElementById('salesChart');
+            if (salesChartEl) {
+                const salesCtx = salesChartEl.getContext('2d');
+                new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: @Html.Raw(Json.Serialize(Model.SalesData?.Labels ?? new List<string>())),
+                        datasets: [{
+                            label: 'Продажи (руб)',
+                            data: @Html.Raw(Json.Serialize(Model.SalesData?.Values ?? new List<decimal>())),
+                            borderColor: pinkColors.dark,
+                            backgroundColor: 'rgba(214, 51, 132, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3,
+                            pointBackgroundColor: pinkColors.medium,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Продажи: ${context.parsed.y.toLocaleString('ru-RU')} ₽`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString('ru-RU') + ' ₽';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Остатки на складе
+            const stockChartEl = document.getElementById('stockChart');
+            if (stockChartEl) {
+                const stockCtx = stockChartEl.getContext('2d');
+                new Chart(stockCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: @Html.Raw(Json.Serialize(Model.StockData?.Labels ?? new List<string>())),
+                        datasets: [{
+                            label: 'Остаток на складе',
+                            data: @Html.Raw(Json.Serialize(Model.StockData?.Values ?? new List<int>())),
+                            backgroundColor: 'rgba(232, 62, 140, 0.7)',
+                            borderColor: pinkColors.medium,
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Товары по категориям
+            const categoryChartEl = document.getElementById('categoryChart');
+            if (categoryChartEl) {
+                const categoryCtx = categoryChartEl.getContext('2d');
+                new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: @Html.Raw(Json.Serialize(Model.CategoryData?.Labels ?? new List<string>())),
+                        datasets: [{
+                            data: @Html.Raw(Json.Serialize(Model.CategoryData?.Values ?? new List<int>())),
+                            backgroundColor: [
+                                'rgba(248, 215, 218, 0.9)',
+                                'rgba(232, 62, 140, 0.9)',
+                                'rgba(214, 51, 132, 0.9)',
+                                'rgba(194, 24, 91, 0.9)',
+                                'rgba(252, 228, 236, 0.9)',
+                                'rgba(255, 182, 193, 0.9)'
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 3,
+                            hoverOffset: 15
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+        }
+
+        function initializeAnimations() {
+            // Плавное появление элементов при скролле
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = "1";
+                        entry.target.style.transform = "translateY(0)";
+                    }
+                });
+            }, observerOptions);
+
+            // Анимируем карточки, таблицу и алерты
+            const elementsToAnimate = document.querySelectorAll('.card, .table-responsive, .alert, .empty-state');
+            elementsToAnimate.forEach(el => {
+                el.style.opacity = "0";
+                el.style.transform = "translateY(20px)";
+                el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+                observer.observe(el);
+            });
+
+            // Принудительное отображение через небольшой таймаут
+            setTimeout(() => {
+                elementsToAnimate.forEach(el => {
+                    el.style.opacity = "1";
+                    el.style.transform = "translateY(0)";
+                });
+            }, 100);
+        }
+    </script>
+}

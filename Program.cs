@@ -1,5 +1,9 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using System.Text;
 
+var builder = WebApplication.CreateBuilder(args);
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+builder.WebHost.UseUrls("https://localhost:7001", "http://localhost:5196");
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpClient("CosmeticApi", client =>
@@ -8,7 +12,6 @@ builder.Services.AddHttpClient("CosmeticApi", client =>
     client.BaseAddress = new Uri(apiUrl);
 });
 
-// Простая настройка для кук
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.CheckConsentNeeded = context => false;
@@ -21,10 +24,9 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Для разработки
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
 
-// Добавляем сервис для доступа к HttpContext
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

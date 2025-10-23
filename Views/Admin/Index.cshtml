@@ -1,0 +1,436 @@
+﻿@model CosmeticShopWeb.Models.AdminPanelViewModel
+@{
+    ViewData["Title"] = "Панель администратора";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>⚙️ Панель администратора</h1>
+            <p class="text-muted">Управление системой</p>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>✅ @TempData["Success"]</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>❌ @TempData["Error"]</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="adminTabs">
+                <li class="nav-item">
+                <div class="mb-3">
+                    <a href="@Url.Action("RegisterEmployee")" class="btn btn-success">
+                        <i class="fas fa-user-plus"></i> Зарегистрировать сотрудника
+                    </a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div class="mb-3">
+                        <a href="@Url.Action("Backup")" class="btn btn-success">
+                            <i class="fas fa-user-plus"></i>Создать копию</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link dark-navs @(Model.ActiveTab == "logs" ? "active" : "")"
+                       asp-action="Index" asp-controller="Admin" asp-route-tab="logs">
+                        📊 Логи действий
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link dark-navs @(Model.ActiveTab == "users" ? "active" : "")"
+                       asp-action="Index" asp-controller="Admin" asp-route-tab="users">
+                        👥 Пользователи
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link dark-navs @(Model.ActiveTab == "orders" ? "active" : "")"
+                       asp-action="Index" asp-controller="Admin" asp-route-tab="orders">
+                        📦 Заказы
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="tab-content">
+                <div class="tab-pane fade @(Model.ActiveTab == "logs" ? "show active" : "")" id="logs">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4>Логи действий пользователей</h4>
+                        <div>
+                            <form asp-action="ClearAllLogs" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Вы уверены, что хотите удалить ВСЕ логи?')">
+                                    🗑️ Очистить все логи
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    @if (!Model.AuditLogs.Any())
+                    {
+                        <div class="empty-state text-center py-5">
+                            <div class="empty-icon mb-3">📭</div>
+                            <h5>Логи отсутствуют</h5>
+                            <p class="text-muted">Здесь будут отображаться действия пользователей</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Пользователь</th>
+                                        <th>Таблица</th>
+                                        <th>Действие</th>
+                                        <th>Старые данные</th>
+                                        <th>Новые данные</th>
+                                        <th>Время</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var log in Model.AuditLogs.OrderByDescending(l => l.Timestamp))
+                                    {
+                                        <tr class="log-row"
+                                            onmouseenter="showLogDetails(@log.Id, this)"
+                                            onmouseleave="hideLogDetails(@log.Id)">
+                                            <td>@log.Id</td>
+                                            <td>
+                                                @if (log.UserId.HasValue)
+                                                {
+                                                    <span>@log.UserName (ID: @log.UserId)</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Система</span>
+                                                }
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">@log.TableName</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge
+                                                                  @(log.ActionType == "INSERT" ? "bg-success" :
+                                                                                                                                                                                                              log.ActionType == "UPDATE" ? "bg-warning" :
+                                                                                                                                                                                                              log.ActionType == "DELETE" ? "bg-danger" : "bg-info")">
+                                            @log.ActionType
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="log-data" title="@log.OldData" onclick="showFullData('old-data-@log.Id', '@log.OldData')">
+                                            @if (string.IsNullOrEmpty(log.OldData))
+                                                    {
+                                                        <span class="text-muted">-</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @(log.OldData.Length > 50 ? log.OldData.Substring(0, 50) + "..." : log.OldData)
+                                                    }
+                                                </div>
+                                                <div id="old-data-@log.Id" class="log-data-expanded" style="display: none;"></div>
+                                            </td>
+                                            <td>
+                                                <div class="log-data" title="@log.NewData" onclick="showFullData('new-data-@log.Id', '@log.NewData')">
+                                                    @if (string.IsNullOrEmpty(log.NewData))
+                                                    {
+                                                        <span class="text-muted">-</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @(log.NewData.Length > 50 ? log.NewData.Substring(0, 50) + "..." : log.NewData)
+                                                    }
+                                                </div>
+                                                <div id="new-data-@log.Id" class="log-data-expanded" style="display: none;"></div>
+                                            </td>
+                                            <td>@log.Timestamp.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                            <td>
+                                                <form asp-action="DeleteLog" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@log.Id" />
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Удалить">
+                                                        🗑️
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+
+                <div class="tab-pane fade @(Model.ActiveTab == "users" ? "show active" : "")" id="users">
+                    <h4>Управление пользователями</h4>
+                    @if (!Model.Users.Any())
+                    {
+                        <div class="empty-state text-center py-5">
+                            <div class="empty-icon mb-3">👥</div>
+                            <h5>Пользователи не найдены</h5>
+                            <p class="text-muted">Здесь будут отображаться зарегистрированные пользователи</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Имя</th>
+                                        <th>Email</th>
+                                        <th>Телефон</th>
+                                        <th>Роль</th>
+                                        <th>Статус</th>
+                                        <th>Дата регистрации</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model.Users.OrderByDescending(u => u.RegistrationDate))
+                                    {
+                                        <tr>
+                                            <td>@user.Id</td>
+                                            <td>@user.FirstName @user.LastName</td>
+                                            <td>@user.Email</td>
+                                            <td>@(string.IsNullOrEmpty(user.Phone) ? "-" : user.Phone)</td>
+                                            <td>
+                                                <span class="badge @(user.RoleUs == "Администратор" ? "bg-danger" : "bg-secondary")">
+                                                    @user.RoleUs
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge @(user.Status == "Активен" ? "bg-success" : "bg-warning")">
+                                                    @user.Status
+                                                </span>
+                                            </td>
+                                            <td>@string.Format("{0:dd.MM.yyyy}", user.RegistrationDate)</td>
+                                            <td>
+                                                <form asp-action="UpdateUserStatus" method="post" class="d-inline">
+                                                    <input type="hidden" name="userId" value="@user.Id" />
+                                                    <select name="status" class="form-select form-select-sm"
+                                                            onchange="this.form.submit()" style="width: 120px;">
+                                                        <option value="Активен" selected="@(user.Status == "Активен")">Активен</option>
+                                                        <option value="Заблокирован" selected="@(user.Status == "Заблокирован")">Заблокирован</option>
+                                                    </select>
+                                                </form>
+                                                @if (user.RoleUs != "Администратор")
+                                                {
+                                                    <form asp-action="DeleteUser" method="post" class="d-inline ms-1">
+                                                        <input type="hidden" name="id" value="@user.Id" />
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm mt-1"
+                                                                onclick="return confirm('Вы уверены, что хотите удалить этого пользователя?')"
+                                                                title="Удалить">
+                                                            🗑️
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info mt-1" title="Администратора нельзя удалить">🔒</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+
+
+                <div class="tab-pane fade @(Model.ActiveTab == "orders" ? "show active" : "")" id="orders">
+                    <h4>Управление заказами</h4>
+
+                    @if (!Model.Orders.Any())
+                    {
+                        <div class="empty-state text-center py-5">
+                            <div class="empty-icon mb-3">📦</div>
+                            <h5>Заказы не найдены</h5>
+                            <p class="text-muted">Здесь будут отображаться заказы пользователей</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Пользователь</th>
+                                        <th>Email</th>
+                                        <th>Дата заказа</th>
+                                        <th>Сумма</th>
+                                        <th>Статус</th>
+                                        <th>Адрес доставки</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.Orders.OrderByDescending(o => o.OrderDate))
+                                    {
+                                        <tr>
+                                            <td>#@order.Id</td>
+                                            <td>@order.UserName</td>
+                                            <td>@order.UserEmail</td>
+                                            <td>@order.OrderDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                            <td>@order.TotalAmount.ToString("C")</td>
+                                            <td>
+                                                <form asp-action="UpdateOrderStatus" method="post" class="d-inline">
+                                                    <input type="hidden" name="orderId" value="@order.Id" />
+                                                    <select name="status" class="form-select form-select-sm"
+                                                            onchange="this.form.submit()" style="width: 140px;">
+                                                        <option value="В обработке" selected="@(order.Status == "В обработке")">В обработке</option>
+                                                        <option value="Собирается" selected="@(order.Status == "Собирается")">Собирается</option>
+                                                        <option value="Доставлен" selected="@(order.Status == "Доставлен")">Доставлен</option>
+                                                        <option value="Отменён" selected="@(order.Status == "Отменён")">Отменён</option>
+                                                    </select>
+                                                </form>
+                                                <form asp-action="DeleteOrder" method="post" class="d-inline ms-1">
+                                                    <input type="hidden" name="id" value="@order.Id" />
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm mt-1"
+                                                            onclick="return confirm('Вы уверены, что хотите удалить этот заказ?')"
+                                                            title="Удалить">
+                                                        🗑️
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <div class="address" title="@order.DeliveryAddress">
+                                                    @(order.DeliveryAddress.Length > 30 ? order.DeliveryAddress.Substring(0, 30) + "..." : order.DeliveryAddress)
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let logHoverTimer;
+
+        function showLogDetails(logId, element) {
+            clearTimeout(logHoverTimer);
+
+            element.classList.add('table-active');
+
+            logHoverTimer = setTimeout(() => {
+                const oldDataElement = document.getElementById(`old-data-${logId}`);
+                const newDataElement = document.getElementById(`new-data-${logId}`);
+
+                if (oldDataElement) {
+                    const oldData = element.querySelector('.log-data[title]').getAttribute('title');
+                    if (oldData && oldData !== '-') {
+                        oldDataElement.innerHTML = `<strong>Старые данные:</strong><br>${formatJsonData(oldData)}`;
+                        oldDataElement.style.display = 'block';
+                    }
+                }
+
+                if (newDataElement) {
+                    const newData = element.querySelectorAll('.log-data[title]')[1].getAttribute('title');
+                    if (newData && newData !== '-') {
+                        newDataElement.innerHTML = `<strong>Новые данные:</strong><br>${formatJsonData(newData)}`;
+                        newDataElement.style.display = 'block';
+                    }
+                }
+            }, 1000);
+        }
+
+        function hideLogDetails(logId) {
+            clearTimeout(logHoverTimer);
+
+            const rows = document.querySelectorAll('.log-row');
+            rows.forEach(row => {
+                row.classList.remove('table-active');
+            });
+
+            const oldDataElement = document.getElementById(`old-data-${logId}`);
+            const newDataElement = document.getElementById(`new-data-${logId}`);
+
+            if (oldDataElement) oldDataElement.style.display = 'none';
+            if (newDataElement) newDataElement.style.display = 'none';
+        }
+
+        function showFullData(elementId, data) {
+            const element = document.getElementById(elementId);
+            if (element.style.display === 'block') {
+                element.style.display = 'none';
+            } else {
+                element.innerHTML = `<strong>Полные данные:</strong><br>${formatJsonData(data)}`;
+                element.style.display = 'block';
+                element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function formatJsonData(data) {
+            if (!data || data === '-') return '<span class="text-muted">Нет данных</span>';
+
+            try {
+                const jsonData = JSON.parse(data);
+                return syntaxHighlight(JSON.stringify(jsonData, null, 2));
+            } catch (e) {
+                return escapeHtml(data);
+            }
+        }
+
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+            function (match) {
+                let cls = 'text-dark';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'text-primary';
+                    } else {
+                        cls = 'text-success';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'text-info';
+                } else if (/null/.test(match)) {
+                    cls = 'text-warning';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;")
+                .replace(/\n/g, "<br>")
+                .replace(/ /g, "&nbsp;");
+        }
+
+
+        setInterval(() => {
+            location.reload();
+        }, 30000);
+    </script>
+}

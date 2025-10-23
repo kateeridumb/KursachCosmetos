@@ -9,5 +9,10 @@
         public string StatusOr { get; set; }
         public string DeliveryAddress { get; set; }
         public int? PromoId { get; set; }
+
+        public string CustomerName { get; set; }
+        public string CustomerEmail { get; set; }
+        public string CustomerPhone { get; set; }
+        public List<ApiOrderDetailResponse> OrderDetails { get; set; } = new List<ApiOrderDetailResponse>();
     }
 }

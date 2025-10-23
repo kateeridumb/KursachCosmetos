@@ -48,7 +48,16 @@
                                 <i class="fas fa-share-alt"></i>
                             </button>
                         </div>
-                        <div class="image-placeholder">
+
+                        @if (!string.IsNullOrEmpty(Model.MainImageUrl))
+                        {
+                            <img src="@Model.MainImageUrl" alt="@Model.NamePr"
+                                 class="product-main-img"
+                                 loading="lazy"
+                                 onerror="handleImageError(this)" />
+                        }
+
+                        <div class="image-placeholder @(string.IsNullOrEmpty(Model.MainImageUrl) ? "" : "d-none")">
                             <i class="@GetCategoryIcon(Model.CategoryName) product-icon"></i>
                             <div class="image-overlay"></div>
                         </div>
@@ -101,6 +110,7 @@
                             <input type="hidden" name="productId" value="@Model.IdProduct" />
                             <input type="hidden" name="name" value="@Model.NamePr" />
                             <input type="hidden" name="price" value="@Model.Price" />
+                            <input type="hidden" name="imageUrl" value="@Model.MainImageUrl" />
                             <input type="hidden" name="quantity" value="1" />
 
                             <button type="submit" class="btn-primary add-to-cart"
@@ -390,7 +400,14 @@
                 {
                     <div class="product-card">
                         <div class="product-image">
-                            <div class="image-placeholder">
+                            @if (!string.IsNullOrEmpty(product.MainImageUrl))
+                            {
+                                <img src="@product.MainImageUrl" alt="@product.NamePr"
+                                     class="product-img"
+                                     loading="lazy"
+                                     onerror="handleRelatedImageError(this)" />
+                            }
+                            <div class="image-placeholder @(string.IsNullOrEmpty(product.MainImageUrl) ? "" : "d-none")">
                                 <i class="@GetCategoryIcon(product.CategoryName) product-icon"></i>
                             </div>
                         </div>
@@ -446,7 +463,35 @@
 
 @section Scripts {
     <script>
+        function handleImageError(img) {
+            const placeholder = img.nextElementSibling;
+            img.style.display = 'none';
+            placeholder.classList.remove('d-none');
+        }
+
+        function handleRelatedImageError(img) {
+            const placeholder = img.nextElementSibling;
+            img.style.display = 'none';
+            placeholder.classList.remove('d-none');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Обработка загрузки основного изображения
+            const mainImage = document.querySelector('.product-main-img');
+            if (mainImage) {
+                if (mainImage.complete && mainImage.naturalHeight === 0) {
+                    handleImageError(mainImage);
+                }
+            }
+
+            // Обработка загрузки изображений похожих товаров
+            const relatedImages = document.querySelectorAll('.product-img');
+            relatedImages.forEach(img => {
+                if (img.complete && img.naturalHeight === 0) {
+                    handleRelatedImageError(img);
+                }
+            });
+
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabPanes = document.querySelectorAll('.tab-pane');
 

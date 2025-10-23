@@ -1,0 +1,138 @@
+﻿@model CosmeticShopWeb.Models.RegisterEmployeeViewModel
+
+@{
+    ViewData["Title"] = "Регистрация сотрудника";
+}
+
+<link rel="stylesheet" href="~/css/register.css" />
+
+<style>
+    .error-hidden {
+        display: none !important;
+    }
+
+    .validation-summary-errors {
+        background: #ffebee;
+        border: 1px solid #f5c2c7;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+        color: #842029;
+        font-size: 14px;
+    }
+
+        .validation-summary-errors ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+    .info-box {
+        background: #e3f2fd;
+        border: 1px solid #90caf9;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="register-container">
+    <div class="register-card">
+        <h2 class="title">Регистрация сотрудника</h2>
+        <p class="subtitle">Заполните данные для регистрации нового сотрудника 👨‍💼👩‍💼</p>
+
+        <div class="info-box">
+            <strong>📧 Пароль будет сгенерирован автоматически и отправлен на email сотрудника</strong>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+        <form asp-action="RegisterEmployee" method="post" id="registerEmployeeForm">
+            <div class="form-group">
+                <label asp-for="LastName">Фамилия *</label>
+                <input asp-for="LastName" class="form-control" placeholder="Введите фамилию" />
+                <span asp-validation-for="LastName" class="text-danger error-hidden"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FirstName">Имя *</label>
+                <input asp-for="FirstName" class="form-control" placeholder="Введите имя" />
+                <span asp-validation-for="FirstName" class="text-danger error-hidden"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MiddleName">Отчество</label>
+                <input asp-for="MiddleName" class="form-control" placeholder="Введите отчество" />
+                <span asp-validation-for="MiddleName" class="text-danger error-hidden"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email">Email *</label>
+                <input asp-for="Email" class="form-control" type="email" placeholder="Введите email" />
+                <span asp-validation-for="Email" class="text-danger error-hidden"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Phone">Телефон *</label>
+                <input asp-for="Phone" class="form-control" placeholder="11 цифр без пробелов" />
+                <span asp-validation-for="Phone" class="text-danger error-hidden"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="RoleUs">Роль *</label>
+                <select asp-for="RoleUs" class="form-control">
+                    <option value="Менеджер">Менеджер</option>
+                    <option value="Администратор">Администратор</option>
+                </select>
+                <span asp-validation-for="RoleUs" class="text-danger error-hidden"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Gender">Пол</label>
+                <select asp-for="Gender" class="form-control">
+                    <option value="">-- Выберите пол --</option>
+                    <option value="Мужской">Мужской</option>
+                    <option value="Женский">Женский</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger error-hidden"></span>
+            </div>
+
+            <div class="buttons">
+                <a href="@Url.Action("Index", new { tab = "users" })" class="btn btn-secondary">Назад</a>
+                <button type="submit" class="btn-submit">Зарегистрировать сотрудника</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("registerEmployeeForm");
+
+            function toggleErrorField(input) {
+                const fieldName = input.name;
+                const errorSpan = form.querySelector(`[data-valmsg-for="${fieldName}"]`);
+                if (!errorSpan) return;
+
+                if (!$(input).valid()) {
+                    errorSpan.classList.remove("error-hidden");
+                } else {
+                    errorSpan.classList.add("error-hidden");
+                }
+            }
+
+            form.querySelectorAll("input, select").forEach(field => {
+                field.addEventListener("blur", function () {
+                    toggleErrorField(this);
+                });
+                field.addEventListener("input", function () {
+                    toggleErrorField(this);
+                });
+                field.addEventListener("change", function () {
+                    toggleErrorField(this);
+                });
+            });
+        });
+    </script>
+}

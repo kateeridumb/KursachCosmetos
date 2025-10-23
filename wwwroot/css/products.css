@@ -1,6 +1,10 @@
 ﻿body {
     background: linear-gradient(135deg, #fffafc, #fff5f9, #fff0f5) !important;
     color: #333;
+    padding-top: 80px !important; 
+    margin: 0;
+    min-height: 100vh;
+    position: relative;
 }
 
 .catalog-hero {
@@ -11,8 +15,9 @@
     padding: 40px 20px;
     gap: 40px;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 20px auto 0;
 }
+
 
 .catalog-title {
     font-size: 3rem;
@@ -81,14 +86,18 @@
         transform: translateY(-20px) rotate(180deg);
     }
 }
-
-/* Фильтры */
+/* ДОБАВЛЯЕМ ОТСТУП ДЛЯ ФИЛЬТРОВ */
 .filters-section {
     padding: 40px 20px;
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    margin: 20px;
+    margin: 30px 20px 20px; /* ВЕРХНИЙ ОТСТУП УВЕЛИЧЕН */
+}
+
+/* ДОБАВЛЯЕМ ОТСТУП ДЛЯ СЕТКИ ТОВАРОВ */
+.products-section {
+    padding: 40px 20px 60px; /* ВЕРХНИЙ ОТСТУП ДОБАВЛЕН */
 }
 
 .filters-container {
@@ -200,50 +209,244 @@
     margin: 0 auto;
 }
 
+/* Стили для карточки товара */
 .product-card {
     background: white;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(216, 27, 96, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     transition: all 0.3s ease;
-    border: 1px solid rgba(216, 27, 96, 0.1);
-    position: relative;
+    border: 1px solid #f0f0f0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
     .product-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 20px 50px rgba(216, 27, 96, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(236, 64, 122, 0.15);
+        border-color: #ec407a;
     }
 
+/* Контейнер для изображения товара */
 .product-image {
-    height: 200px;
-    background: linear-gradient(45deg, #f8bbd0, #f48fb1);
     position: relative;
+    width: 100%;
+    height: 280px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 3rem;
 }
 
+/* Реальное изображение товара */
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Измените с cover на contain для полного отображения */
+    transition: transform 0.3s ease;
+    background: white; /* Белый фон для прозрачных изображений */
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.05);
+}
+
+/* Заглушка (показывается только если изображение не загрузилось) */
+.image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    z-index: 1;
+}
+
+/* Убедитесь, что бейджи и кнопки поверх изображения */
+.product-badge,
+.product-actions {
+    z-index: 2;
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.05);
+}
+
+.product-icon {
+    font-size: 3rem;
+    color: #ec407a;
+    opacity: 0.7;
+    margin-bottom: 10px;
+}
+
+/* Бейдж статуса */
 .product-badge {
     position: absolute;
-    top: 15px;
-    left: 15px;
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-size: 0.8rem;
+    top: 12px;
+    left: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: white;
+    z-index: 2;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
     .product-badge.in-stock {
         background: rgba(76, 175, 80, 0.9);
+        color: white;
     }
 
     .product-badge.low-stock {
         background: rgba(255, 152, 0, 0.9);
+        color: white;
     }
+
+    .product-badge.out-of-stock {
+        background: rgba(244, 67, 54, 0.9);
+        color: white;
+    }
+    
+.product-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.wishlist-btn, .quick-view-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+    .wishlist-btn:hover, .quick-view-btn:hover {
+        background: #ec407a;
+        color: white;
+        transform: scale(1.1);
+    }
+
+.product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-brand {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.product-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+    .product-name a {
+        color: #333;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .product-name a:hover {
+            color: #ec407a;
+        }
+
+.product-description {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    flex: 1;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ec407a;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.product-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.product-category, .product-stock {
+    font-size: 0.8rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+}
+
+.add-to-cart-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: linear-gradient(45deg, #ec407a, #d81b60);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+    .add-to-cart-btn:hover:not(.disabled) {
+        background: linear-gradient(45deg, #d81b60, #c2185b);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(236, 64, 122, 0.4);
+    }
+
+    .add-to-cart-btn.disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+.cart-icon {
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .product-image {
+        height: 220px;
+    }
+
+    .product-card {
+        padding: 15px;
+    }
+}
 
 .product-actions {
     position: absolute;

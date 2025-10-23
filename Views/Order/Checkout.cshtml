@@ -17,10 +17,15 @@
                 <form asp-action="Checkout" method="post" class="checkout-form" id="checkoutForm">
                     @Html.AntiForgeryToken()
 
-                    <input type="hidden" asp-for="FirstName" />
-                    <input type="hidden" asp-for="LastName" />
-                    <input type="hidden" asp-for="Email" />
-                    <input type="hidden" asp-for="Phone" />
+                    <div class="form-section">
+                        <h4>📞 Контактные данные</h4>
+                        <div class="form-group">
+                            <label asp-for="Phone" class="form-label">Телефон *</label>
+                            <input asp-for="Phone" class="form-control" placeholder="+7 (999) 999-99-99" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                            <small class="form-text text-muted">Для связи по поводу доставки</small>
+                        </div>
+                    </div>
 
                     <div class="checkout-progress">
                         <div class="progress-step active">
@@ -48,11 +53,7 @@
                                 <span class="user-info-label">Email:</span>
                                 <span class="user-info-value">@Model.Email</span>
                             </div>
-                            <div class="user-info-item">
-                                <span class="user-info-label">Телефон:</span>
-                                <span class="user-info-value">@Model.Phone</span>
-                            </div>
-                            <small class="text-muted">Данные взяты из вашего профиля</small>
+                            <small class="text-muted">Данные взяты из вашего профиля. Для изменения обновите информацию в личном кабинете.</small>
                         </div>
                     </div>
 

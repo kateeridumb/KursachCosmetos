@@ -35,6 +35,7 @@ namespace CosmeticShopWeb.Controllers
                 return RedirectToAction("Index", "Cart");
             }
 
+            // ПОЛУЧАЕМ ДАННЫЕ ИЗ КУКИ, а не из API
             var currentUser = GetUserFromCookie();
             Console.WriteLine($"Пользователь из куки: {(currentUser != null ? $"ID={currentUser.Id_User}, Email={currentUser.Email}" : "не авторизован")}");
 
@@ -42,30 +43,19 @@ namespace CosmeticShopWeb.Controllers
             {
                 Cart = cart,
                 DeliveryCost = CalculateDeliveryCost("standard"),
-                DeliveryMethod = "standard", 
-                PaymentMethod = "card"       
+                DeliveryMethod = "standard",
+                PaymentMethod = "card"
             };
 
+            // ЗАПОЛНЯЕМ ДАННЫЕ ИЗ КУКИ
             if (currentUser != null)
             {
-                var fullUserData = await GetFullUserData(currentUser.Id_User);
+                model.FirstName = currentUser.FirstName ?? "";
+                model.LastName = currentUser.LastName ?? "";
+                model.Email = currentUser.Email ?? "";
+                // Phone может быть null, так как его нет в базовой модели пользователя
 
-                if (fullUserData != null)
-                {
-                    model.FirstName = fullUserData.FirstName ?? currentUser.FirstName;
-                    model.LastName = fullUserData.LastName ?? currentUser.LastName;
-                    model.Email = fullUserData.Email ?? currentUser.Email;
-                    model.Phone = fullUserData.Phone;
-
-                    Console.WriteLine($"Данные из API: {model.FirstName} {model.LastName}, {model.Email}, {model.Phone}");
-                }
-                else
-                {
-                    model.FirstName = currentUser.FirstName;
-                    model.LastName = currentUser.LastName;
-                    model.Email = currentUser.Email;
-                    Console.WriteLine($"Данные из куки: {model.FirstName} {model.LastName}, {model.Email}");
-                }
+                Console.WriteLine($"Данные из куки: {model.FirstName} {model.LastName}, {model.Email}");
             }
 
             ViewBag.DeliveryOptions = GetDeliveryOptions();
@@ -94,38 +84,48 @@ namespace CosmeticShopWeb.Controllers
             var currentUser = GetUserFromCookie();
             Console.WriteLine($"Пользователь из куки: {(currentUser != null ? $"ID={currentUser.Id_User}, Email={currentUser.Email}" : "не авторизован")}");
 
-            if (currentUser != null)
-            {
-                model.FirstName = currentUser.FirstName;
-                model.LastName = currentUser.LastName;
-                model.Email = currentUser.Email;
-
-                var fullUserData = await GetFullUserData(currentUser.Id_User);
-                model.Phone = fullUserData?.Phone ?? model.Phone;
-
-                Console.WriteLine($"Данные из куки установлены: {model.FirstName} {model.LastName}, {model.Email}");
-            }
-
             model.Cart = cart;
             model.DeliveryCost = CalculateDeliveryCost(model.DeliveryMethod);
 
-            ModelState.Remove("Cart");
+            // ЗАПОЛНЯЕМ ДАННЫЕ ИЗ КУКИ ПЕРЕД ВАЛИДАЦИЕЙ
             if (currentUser != null)
             {
-                ModelState.Remove("FirstName");
-                ModelState.Remove("LastName");
-                ModelState.Remove("Email");
-                ModelState.Remove("Phone");
+                model.FirstName = currentUser.FirstName ?? "";
+                model.LastName = currentUser.LastName ?? "";
+                model.Email = currentUser.Email ?? "";
+
+                // Если телефон не заполнен в форме, но есть в куки, используем из куки
+                if (string.IsNullOrEmpty(model.Phone))
+                {
+                    // Здесь можно добавить логику для получения телефона из профиля если нужно
+                    // Пока оставляем как есть - телефон должен быть заполнен пользователем
+                }
+            }
+
+            // Убираем проверки для полей, которые заполняются автоматически
+            ModelState.Remove("Cart");
+            ModelState.Remove("TotalAmount");
+            ModelState.Remove("DeliveryCost");
+            ModelState.Remove("FirstName");
+            ModelState.Remove("LastName");
+            ModelState.Remove("Email");
+
+            if (string.IsNullOrEmpty(model.Comment))
+            {
+                ModelState.Remove("Comment");
             }
 
             Console.WriteLine($"Модель валидна: {ModelState.IsValid}");
             Console.WriteLine($"Способ оплаты: {model.PaymentMethod}");
             Console.WriteLine($"Способ доставки: {model.DeliveryMethod}");
+            Console.WriteLine($"Телефон: {model.Phone}");
+            Console.WriteLine($"Город: {model.City}");
+            Console.WriteLine($"Адрес: {model.Address}");
+            Console.WriteLine($"Индекс: {model.PostalCode}");
 
             if (!ModelState.IsValid)
             {
                 Console.WriteLine("Модель невалидна, возвращаю с ошибками");
-
                 foreach (var key in ModelState.Keys)
                 {
                     var errors = ModelState[key].Errors;
@@ -162,8 +162,15 @@ namespace CosmeticShopWeb.Controllers
                     CustomerPhone = model.Phone,
                     DeliveryMethod = model.DeliveryMethod,
                     PaymentMethod = model.PaymentMethod,
-                    Comment = model.Comment,
-                    CartItems = cart.Items
+                    Comment = model.Comment ?? "",
+                    CartItems = cart.Items,
+                    City = model.City,
+                    Address = model.Address,
+                    PostalCode = model.PostalCode,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    Phone = model.Phone
                 };
 
                 var orderJson = JsonConvert.SerializeObject(orderData);
@@ -186,6 +193,9 @@ namespace CosmeticShopWeb.Controllers
                 else
                 {
                     Console.WriteLine($"Редирект на Payment с методом: {model.PaymentMethod}");
+
+                    TempData["TotalAmount"] = model.TotalAmount.ToString();
+                    TempData["CustomerPhone"] = model.Phone;
                     return RedirectToAction("Payment", new { paymentMethod = model.PaymentMethod });
                 }
             }
@@ -193,41 +203,12 @@ namespace CosmeticShopWeb.Controllers
             {
                 Console.WriteLine($"ОШИБКА в Checkout: {ex.Message}");
                 TempData["Error"] = "Ошибка при оформлении заказа. Попробуйте позже.";
+
                 ViewBag.DeliveryOptions = GetDeliveryOptions();
                 ViewBag.PaymentOptions = GetPaymentOptions();
                 return View(model);
             }
         }
-
-        private async Task<ApiUserResponse> GetFullUserData(int userId)
-        {
-            try
-            {
-                Console.WriteLine($"Получаю данные пользователя {userId} из API...");
-                var response = await _httpClient.GetAsync($"{_apiBaseUrl}Users/{userId}");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Ответ API: {responseContent}");
-
-                    var userData = System.Text.Json.JsonSerializer.Deserialize<ApiUserResponse>(responseContent, _jsonOptions);
-                    Console.WriteLine($"Получены данные: {userData?.FirstName} {userData?.LastName}, Phone: {userData?.Phone}");
-                    return userData;
-                }
-                else
-                {
-                    Console.WriteLine($"Ошибка API: {response.StatusCode}");
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при получении данных пользователя: {ex.Message}");
-                return null;
-            }
-        }
-
         [HttpPost]
         public async Task<JsonResult> ProcessCashPayment()
         {
@@ -283,8 +264,18 @@ namespace CosmeticShopWeb.Controllers
             var model = new PaymentViewModel
             {
                 PaymentMethod = paymentMethod,
-                TotalAmount = (decimal)orderData.TotalAmount
+                TotalAmount = (decimal)orderData.TotalAmount,
+                PhoneNumber = orderData.CustomerPhone?.ToString() ?? orderData.Phone?.ToString(),
+                OrderData = pendingOrderJson
             };
+
+            Console.WriteLine($"PhoneNumber автоматически заполнен: {model.PhoneNumber}");
+
+            if (string.IsNullOrEmpty(model.PhoneNumber) && TempData["CustomerPhone"] != null)
+            {
+                model.PhoneNumber = TempData["CustomerPhone"].ToString();
+                Console.WriteLine($"PhoneNumber из TempData: {model.PhoneNumber}");
+            }
 
             Console.WriteLine("Страница оплаты показана");
             return View(model);
@@ -298,6 +289,15 @@ namespace CosmeticShopWeb.Controllers
             Console.WriteLine($"Метод оплаты: {model.PaymentMethod}");
 
             ModelState.Remove("CardHolderName");
+            ModelState.Remove("CardNumber");
+            ModelState.Remove("ExpiryDate");
+            ModelState.Remove("CVV");
+            ModelState.Remove("OrderData");
+
+            if (model.PaymentMethod != "sbp")
+            {
+                ModelState.Remove("PhoneNumber");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -364,14 +364,15 @@ namespace CosmeticShopWeb.Controllers
 
             try
             {
+                // Вариант 1: Простой объект
                 var orderRequest = new
                 {
-                    UserID = (int)orderData.UserID,
-                    OrderDate = (string)orderData.OrderDate,
+                    UserId = (int)orderData.UserID,
+                    OrderDate = DateTime.Now,
                     TotalAmount = (decimal)orderData.TotalAmount,
                     StatusOr = status,
                     DeliveryAddress = (string)orderData.DeliveryAddress,
-                    PromoID = (int?)null
+                    PromoId = (int?)null
                 };
 
                 Console.WriteLine($"Данные заказа: UserID={orderData.UserID}, TotalAmount={orderData.TotalAmount}");
@@ -381,22 +382,103 @@ namespace CosmeticShopWeb.Controllers
 
                 var apiUrl = $"{_apiBaseUrl}orders";
                 Console.WriteLine($"Отправляю запрос на API: {apiUrl}");
+                Console.WriteLine($"Данные запроса: {orderJson}");
 
                 var orderResponse = await _httpClient.PostAsync(apiUrl, orderContent);
+                var orderResponseContent = await orderResponse.Content.ReadAsStringAsync();
+
                 Console.WriteLine($"Ответ API: {orderResponse.StatusCode}");
+                Console.WriteLine($"Тело ответа: {orderResponseContent}");
 
                 if (!orderResponse.IsSuccessStatusCode)
                 {
-                    var errorContent = await orderResponse.Content.ReadAsStringAsync();
-                    Console.WriteLine($"ОШИБКА API: {orderResponse.StatusCode}, Content: {errorContent}");
-                    throw new Exception($"Ошибка API: {orderResponse.StatusCode}");
+                    // Вариант 2: С оберткой orderDto
+                    Console.WriteLine("Пробую формат с orderDto...");
+
+                    var altOrderRequest = new
+                    {
+                        orderDto = new
+                        {
+                            UserId = (int)orderData.UserID,
+                            OrderDate = DateTime.Now,
+                            TotalAmount = (decimal)orderData.TotalAmount,
+                            StatusOr = status,
+                            DeliveryAddress = (string)orderData.DeliveryAddress,
+                            PromoId = (int?)null
+                        }
+                    };
+
+                    var altOrderJson = JsonConvert.SerializeObject(altOrderRequest, new JsonSerializerSettings
+                    {
+                        DateFormatString = "yyyy-MM-ddTHH:mm:ss.fffZ"
+                    });
+
+                    var altOrderContent = new StringContent(altOrderJson, Encoding.UTF8, "application/json");
+
+                    Console.WriteLine($"Альтернативные данные: {altOrderJson}");
+
+                    orderResponse = await _httpClient.PostAsync(apiUrl, altOrderContent);
+                    orderResponseContent = await orderResponse.Content.ReadAsStringAsync();
+
+                    Console.WriteLine($"Ответ API (альтернатива): {orderResponse.StatusCode}");
+                    Console.WriteLine($"Тело ответа (альтернатива): {orderResponseContent}");
+
+                    if (!orderResponse.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"ОШИБКА API: {orderResponse.StatusCode}, Content: {orderResponseContent}");
+                        throw new Exception($"Ошибка API: {orderResponse.StatusCode} - {orderResponseContent}");
+                    }
                 }
 
-                var orderResponseContent = await orderResponse.Content.ReadAsStringAsync();
-                Console.WriteLine($"Ответ от API: {orderResponseContent}");
+                int orderId = 0;
 
-                var createdOrder = JsonConvert.DeserializeObject<OrderCreateResponse>(orderResponseContent);
-                Console.WriteLine($"Заказ создан с ID: {createdOrder.Id_Order}");
+                if (orderResponseContent.Contains("idOrder"))
+                {
+                    var match = System.Text.RegularExpressions.Regex.Match(orderResponseContent, @"""idOrder""\s*:\s*(\d+)");
+                    if (match.Success)
+                    {
+                        orderId = int.Parse(match.Groups[1].Value);
+                    }
+                }
+
+                if (orderId == 0 && orderResponseContent.Contains("IdOrder"))
+                {
+                    var match = System.Text.RegularExpressions.Regex.Match(orderResponseContent, @"""IdOrder""\s*:\s*(\d+)");
+                    if (match.Success)
+                    {
+                        orderId = int.Parse(match.Groups[1].Value);
+                    }
+                }
+
+                if (orderId == 0 && orderResponseContent.Contains("orderId"))
+                {
+                    var match = System.Text.RegularExpressions.Regex.Match(orderResponseContent, @"""orderId""\s*:\s*(\d+)");
+                    if (match.Success)
+                    {
+                        orderId = int.Parse(match.Groups[1].Value);
+                    }
+                }
+
+                if (orderId == 0)
+                {
+                    var matches = System.Text.RegularExpressions.Regex.Matches(orderResponseContent, @"\b\d+\b");
+                    foreach (System.Text.RegularExpressions.Match match in matches)
+                    {
+                        if (int.TryParse(match.Value, out int potentialId) && potentialId > 0)
+                        {
+                            orderId = potentialId;
+                            Console.WriteLine($"Найден потенциальный ID: {orderId}");
+                            break;
+                        }
+                    }
+                }
+
+                if (orderId == 0)
+                {
+                    throw new Exception($"Не удалось извлечь ID заказа из ответа: {orderResponseContent}");
+                }
+
+                Console.WriteLine($"Заказ создан с ID: {orderId}");
 
                 var cartItems = orderData.CartItems;
                 Console.WriteLine($"Создаю {cartItems.Count} деталей заказа");
@@ -411,8 +493,8 @@ namespace CosmeticShopWeb.Controllers
 
                     var orderDetailData = new
                     {
-                        OrderID = createdOrder.Id_Order,
-                        ProductID = productId,
+                        OrderId = orderId,
+                        ProductId = productId,
                         Quantity = quantity,
                         Price = price
                     };
@@ -421,15 +503,37 @@ namespace CosmeticShopWeb.Controllers
                     var detailContent = new StringContent(detailJson, Encoding.UTF8, "application/json");
 
                     var detailResponse = await _httpClient.PostAsync($"{_apiBaseUrl}orderdetails", detailContent);
+                    var detailResponseContent = await detailResponse.Content.ReadAsStringAsync();
+
                     Console.WriteLine($"Деталь заказа создана, статус: {detailResponse.StatusCode}");
+
+                    if (!detailResponse.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine($"Ошибка создания детали заказа: {detailResponseContent}");
+
+                        // Пробуем альтернативный формат
+                        var altDetailData = new
+                        {
+                            orderDetailDto = orderDetailData
+                        };
+
+                        var altDetailJson = JsonConvert.SerializeObject(altDetailData);
+                        var altDetailContent = new StringContent(altDetailJson, Encoding.UTF8, "application/json");
+
+                        detailResponse = await _httpClient.PostAsync($"{_apiBaseUrl}orderdetails", altDetailContent);
+                        detailResponseContent = await detailResponse.Content.ReadAsStringAsync();
+
+                        Console.WriteLine($"Деталь заказа (альтернатива), статус: {detailResponse.StatusCode}");
+                    }
                 }
 
                 Console.WriteLine("Все детали заказа созданы успешно");
-                return createdOrder.Id_Order;
+                return orderId;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"ОШИБКА в CreateOrderInDatabase: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
                 throw new Exception($"Ошибка создания заказа: {ex.Message}");
             }
         }
@@ -475,6 +579,7 @@ namespace CosmeticShopWeb.Controllers
         {
             HttpContext.Session.Remove("CartSession");
         }
+
         [HttpGet]
         public async Task<IActionResult> MyOrders()
         {
@@ -566,7 +671,7 @@ namespace CosmeticShopWeb.Controllers
                         TotalAmount = apiOrder.TotalAmount,
                         Status = apiOrder.StatusOr,
                         DeliveryAddress = apiOrder.DeliveryAddress,
-                        PaymentMethod = "card", 
+                        PaymentMethod = "card",
                         Items = orderDetails
                     });
                 }
@@ -678,5 +783,4 @@ namespace CosmeticShopWeb.Controllers
             }
         }
     }
-
 }

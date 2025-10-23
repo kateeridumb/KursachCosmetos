@@ -1,7 +1,8 @@
-﻿using System.Text;
-using System.Text.Json;
-using CosmeticShopWeb.Models;
+﻿using CosmeticShopWeb.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Text;
+using System.Text.Json;
 
 namespace CosmeticShopWeb.Controllers
 {
@@ -42,7 +43,7 @@ namespace CosmeticShopWeb.Controllers
                 Gender = model.Gender
             };
 
-            var json = JsonSerializer.Serialize(dto);
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _http.PostAsync("Users/register", content);
@@ -63,7 +64,7 @@ namespace CosmeticShopWeb.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            if (IsUserAuthenticated())
+            if (IsAuthenticated)
                 return RedirectToAction("Index", "Home");
 
             return View();
@@ -76,7 +77,7 @@ namespace CosmeticShopWeb.Controllers
                 return View(model);
 
             var dto = new { Username = model.Username, Password = model.Password };
-            var json = JsonSerializer.Serialize(dto);
+            var json = System.Text.Json.JsonSerializer.Serialize(dto);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             try
@@ -86,7 +87,7 @@ namespace CosmeticShopWeb.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    var userData = JsonSerializer.Deserialize<UserLoginResponse>(responseContent, _jsonOptions);
+                    var userData = System.Text.Json.JsonSerializer.Deserialize<UserLoginResponse>(responseContent, _jsonOptions);
 
                     if (userData != null)
                     {
@@ -122,7 +123,7 @@ namespace CosmeticShopWeb.Controllers
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            var currentUser = GetUserFromCookie();
+            var currentUser = CurrentUser;
             if (currentUser == null)
                 return RedirectToAction("Login");
 
@@ -144,7 +145,7 @@ namespace CosmeticShopWeb.Controllers
         [HttpGet]
         public async Task<IActionResult> EditProfile()
         {
-            var currentUser = GetUserFromCookie();
+            var currentUser = CurrentUser;
             if (currentUser == null)
                 return RedirectToAction("Login");
 
@@ -161,7 +162,7 @@ namespace CosmeticShopWeb.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    var apiUserData = JsonSerializer.Deserialize<ApiUserResponse>(responseContent, _jsonOptions);
+                    var apiUserData = System.Text.Json.JsonSerializer.Deserialize<ApiUserResponse>(responseContent, _jsonOptions);
 
                     if (apiUserData != null)
                     {
@@ -187,7 +188,7 @@ namespace CosmeticShopWeb.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var currentUser = GetUserFromCookie();
+            var currentUser = CurrentUser;
             if (currentUser == null)
                 return RedirectToAction("Login");
 
@@ -208,7 +209,7 @@ namespace CosmeticShopWeb.Controllers
                     DateRegistered = currentUserData.DateRegistered
                 };
 
-                var json = JsonSerializer.Serialize(updateData);
+                var json = System.Text.Json.JsonSerializer.Serialize(updateData);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var response = await _http.PutAsync($"Users/{currentUser.Id_User}", content);
@@ -251,7 +252,7 @@ namespace CosmeticShopWeb.Controllers
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<ApiUserResponse>(responseContent, _jsonOptions);
+                    return System.Text.Json.JsonSerializer.Deserialize<ApiUserResponse>(responseContent, _jsonOptions);
                 }
             }
             catch (Exception ex)
@@ -278,7 +279,7 @@ namespace CosmeticShopWeb.Controllers
                 user.Email
             };
 
-            var userJson = JsonSerializer.Serialize(userData);
+            var userJson = JsonConvert.SerializeObject(userData);
             var encryptedData = Convert.ToBase64String(Encoding.UTF8.GetBytes(userJson));
 
             var cookieOptions = new CookieOptions
@@ -296,33 +297,99 @@ namespace CosmeticShopWeb.Controllers
 
             Response.Cookies.Append("UserAuth", encryptedData, cookieOptions);
         }
-
-        private UserLoginResponse GetUserFromCookie()
+        [HttpGet]
+        public IActionResult ForgotPassword()
         {
-            if (Request.Cookies.TryGetValue("UserAuth", out var encryptedData))
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+
+            if (!ModelState.IsValid)
             {
-                try
+                return View(model);
+            }
+
+            try
+            {
+                var response = await _http.PostAsJsonAsync("Users/forgot-password", new { Email = model.Email });
+
+
+                if (response.IsSuccessStatusCode)
                 {
-                    var userJson = Encoding.UTF8.GetString(Convert.FromBase64String(encryptedData));
-                    return JsonSerializer.Deserialize<UserLoginResponse>(userJson, _jsonOptions);
+                    TempData["Message"] = "Если email существует, инструкции по восстановлению пароля будут отправлены на ваш email.";
+                    return RedirectToAction("Login");
                 }
-                catch
+                else
                 {
-                    Response.Cookies.Delete("UserAuth");
-                    return null;
+                    var error = await response.Content.ReadAsStringAsync();
+                    ModelState.AddModelError("", error);
+                    return View(model);
                 }
             }
-            return null;
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ошибка: {ex.Message}");
+                return View(model);
+            }
         }
 
-        public bool IsUserAuthenticated()
+        [HttpGet]
+        public IActionResult ResetPassword(string token)
         {
-            return GetUserFromCookie() != null;
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "Неверная ссылка для сброса пароля";
+                return RedirectToAction("Login");
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                Token = token
+            };
+
+            return View(model);
         }
 
-        public UserLoginResponse GetCurrentUser()
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
-            return GetUserFromCookie();
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                var resetData = new
+                {
+                    Token = model.Token,
+                    Password = model.Password
+                };
+
+                var response = await _http.PostAsJsonAsync("Users/reset-password", resetData);
+
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Message"] = "Пароль успешно изменен! Теперь вы можете войти с новым паролем.";
+                    return RedirectToAction("Login");
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    ModelState.AddModelError("", error);
+                    return View(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Ошибка: {ex.Message}");
+                return View(model);
+            }
         }
     }
 }

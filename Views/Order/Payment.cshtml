@@ -34,6 +34,7 @@
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="PaymentMethod" />
                     <input type="hidden" asp-for="OrderData" />
+                    <input type="hidden" asp-for="TotalAmount" />
 
                     @if (isCard)
                     {
@@ -79,8 +80,13 @@
                             <h4>Данные для СБП</h4>
                             <div class="form-group">
                                 <label asp-for="PhoneNumber" class="form-label">Номер телефона</label>
-                                <input asp-for="PhoneNumber" class="form-control" placeholder="+7 (999) 999-99-99" />
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="+7 (999) 999-99-99"
+                                       value="@Model.PhoneNumber" />
                                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                                {
+                                    <small class="text-muted">Номер заполнен автоматически из данных заказа</small>
+                                }
                             </div>
                             <div class="sbp-info">
                                 <p class="text-muted">
@@ -111,6 +117,14 @@
 
 @section Scripts {
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneInput = document.getElementById('PhoneNumber');
+            if (phoneInput && !phoneInput.value) {
+                const currentPhone = '@Model.PhoneNumber';
+                if (currentPhone && currentPhone !== '') {
+                    phoneInput.value = currentPhone;
+                }
+            }
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('paymentForm');
 

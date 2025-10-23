@@ -1,0 +1,85 @@
+﻿
+<link rel="stylesheet" href="~/css/login.css" />
+<div class="d-flex justify-content-between align-items-center mb-4 text-black">
+    <h1>Управление резервными копиями</h1>
+    <div>
+        <button type="button" class="btn btn-submit" onclick="createBackup()">
+            <i class="fas fa-database"></i> Быстрый бэкап
+        </button>
+    </div>
+</div>
+<div class="card mb-4">
+    <div class="card-header text-black">
+        <h5 class="mb-0">Восстановление из файла</h5>
+    </div>
+    <div class="card-body">
+        <p>Восстановите базу данных из файла бэкапа (.bak)</p>
+        <form asp-action="RestoreBackup" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="file" class="form-label">Выберите файл бэкапа</label>
+                <input type="file" class="form-control" name="file" accept=".bak,.bacpac" required>
+                <div class="form-text">Поддерживаются файлы .bak и .bacpac (макс. 1GB)</div>
+            </div>
+            <button type="submit" class="btn btn-submit"
+                    onclick="return confirm('ВНИМАНИЕ! Это перезапишет текущую базу данных. Продолжить?')">
+                <i class="fas fa-undo"></i> Восстановить из файла
+            </button>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        function createBackup() {
+            if (!confirm('Создать резервную копию базы данных?')) {
+                return;
+            }
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание...';
+            btn.disabled = true;
+
+            fetch('@Url.Action("CreateBackupNow", "Admin")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP error: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('❌ Ошибка: ' + error.message);
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        document.querySelector('form[asp-action="RestoreBackup"]')?.addEventListener('submit', function(e) {
+            const fileInput = this.querySelector('input[type="file"]');
+            if (fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Пожалуйста, выберите файл бэкапа');
+                return;
+            }
+
+            if (!confirm('ВНИМАНИЕ! Это перезапишет текущую базу данных. Продолжить?')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}

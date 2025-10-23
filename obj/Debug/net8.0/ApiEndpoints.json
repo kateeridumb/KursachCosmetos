@@ -227,7 +227,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ImageDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ImageDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -236,95 +236,6 @@
         "StatusCode": 200
       }
     ]
-  },
-  {
-    "ContainingType": "CosmeticShopAPI.Controllers.ImagesController",
-    "Method": "PostImage",
-    "RelativePath": "api/Images",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "dto",
-        "Type": "CosmeticShopAPI.DTOs.ImageDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "CosmeticShopAPI.DTOs.ImageDTO",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "CosmeticShopAPI.Controllers.ImagesController",
-    "Method": "GetImage",
-    "RelativePath": "api/Images/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "CosmeticShopAPI.DTOs.ImageDTO",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "CosmeticShopAPI.Controllers.ImagesController",
-    "Method": "PutImage",
-    "RelativePath": "api/Images/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "dto",
-        "Type": "CosmeticShopAPI.DTOs.ImageDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "CosmeticShopAPI.Controllers.ImagesController",
-    "Method": "DeleteImage",
-    "RelativePath": "api/Images/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
   },
   {
     "ContainingType": "CosmeticShopAPI.Controllers.ImagesController",
@@ -342,7 +253,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ImageDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ImageDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -490,14 +401,14 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "order",
-        "Type": "CosmeticShopAPI.Models.Order",
+        "Name": "orderDto",
+        "Type": "CosmeticShopAPI.DTOs.OrderDTO",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "CosmeticShopAPI.Models.Order",
+        "Type": "CosmeticShopAPI.DTOs.OrderDTO",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -699,26 +610,6 @@
       }
     ],
     "ReturnTypes": []
-  },
-  {
-    "ContainingType": "CosmeticShopAPI.Controllers.ProductsController",
-    "Method": "GetFeaturedProducts",
-    "RelativePath": "api/Products/featured",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "CosmeticShopAPI.DTOs.ApiResponse\u00601[[System.Collections.Generic.IEnumerable\u00601[[CosmeticShopAPI.DTOs.ProductDTO, CosmeticShopAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
   },
   {
     "ContainingType": "CosmeticShopAPI.Controllers.PromoCodesController",
@@ -1220,6 +1111,32 @@
   },
   {
     "ContainingType": "CosmeticShopAPI.Controllers.UsersController",
+    "Method": "CreateBackup",
+    "RelativePath": "api/Users/backup",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CosmeticShopAPI.Controllers.UsersController",
+    "Method": "ForgotPassword",
+    "RelativePath": "api/Users/forgot-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CosmeticShopAPI.Models.ForgotPasswordRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CosmeticShopAPI.Controllers.UsersController",
     "Method": "Login",
     "RelativePath": "api/Users/login",
     "HttpMethod": "POST",
@@ -1246,6 +1163,54 @@
         "Name": "dto",
         "Type": "CosmeticShopAPI.DTOs.RegisterDTO",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CosmeticShopAPI.Controllers.UsersController",
+    "Method": "RegisterEmployee",
+    "RelativePath": "api/Users/register-employee",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CosmeticShopAPI.DTOs.RegisterEmployeeRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CosmeticShopAPI.Controllers.UsersController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/Users/reset-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "CosmeticShopAPI.Models.ResetPasswordRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CosmeticShopAPI.Controllers.UsersController",
+    "Method": "RestoreDatabase",
+    "RelativePath": "api/Users/restore",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "file",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

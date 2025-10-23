@@ -10,7 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
+	<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="iTextSharp" Version="5.5.13.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,10 +31,12 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGenerators.Mvc" Version="9.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.10" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Views\" />
+    <Folder Include="backups\" />
   </ItemGroup>
 
 </Project>

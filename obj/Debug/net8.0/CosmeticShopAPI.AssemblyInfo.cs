@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CosmeticShopAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9cabec576fa1c72403ae811182b1eb48a9d1dea4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1379f9df0d6e0e9e72e82e6793d771dbdf169d66")]
 [assembly: System.Reflection.AssemblyProductAttribute("CosmeticShopAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CosmeticShopAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

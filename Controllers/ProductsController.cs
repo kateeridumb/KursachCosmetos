@@ -44,8 +44,6 @@ namespace CosmeticShopAPI.Controllers
                         p.DescriptionPr.Contains(search));
                 }
 
-                query = query.Where(p => p.IsAvailable);
-
                 var totalCount = await query.CountAsync();
 
                 var products = await query
@@ -86,47 +84,6 @@ namespace CosmeticShopAPI.Controllers
                 {
                     Success = false,
                     Message = $"Ошибка при загрузке продуктов: {ex.Message}"
-                });
-            }
-        }
-
-        [HttpGet("featured")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<ProductDTO>>>> GetFeaturedProducts()
-        {
-            try
-            {
-                var featuredProducts = await _context.Products
-                    .Where(p => p.IsAvailable && p.StockQuantity > 0)
-                    .OrderByDescending(p => p.Price) 
-                    .Take(8)
-                    .ToListAsync();
-
-                var dto = featuredProducts.Select(p => new ProductDTO
-                {
-                    IdProduct = p.Id_Product,
-                    CategoryId = p.CategoryID,
-                    NamePr = p.NamePr,
-                    DescriptionPr = p.DescriptionPr,
-                    BrandPr = p.BrandPr,
-                    Price = p.Price,
-                    StockQuantity = p.StockQuantity,
-                    IsAvailable = p.IsAvailable,
-                    CategoryName = GetCategoryName(p.CategoryID),
-                    CategoryIcon = GetCategoryIcon(p.CategoryID)
-                }).ToList();
-
-                return Ok(new ApiResponse<IEnumerable<ProductDTO>>
-                {
-                    Success = true,
-                    Data = dto
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ApiResponse<string>
-                {
-                    Success = false,
-                    Message = $"Ошибка при загрузке избранных продуктов: {ex.Message}"
                 });
             }
         }
@@ -297,8 +254,8 @@ namespace CosmeticShopAPI.Controllers
                 2 => "✨",
                 3 => "🌺",
                 4 => "💆‍♀️",
-                5 => "🛁", 
-                6 => "🌟", 
+                5 => "🛁",
+                6 => "🌟",
                 _ => "📦"
             };
     }

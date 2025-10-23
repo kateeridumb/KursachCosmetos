@@ -8,9 +8,9 @@ namespace CosmeticShopAPI.DTOs
 {
     public class ImageDTO
     {
-        public int IdImage { get; set; }
-        public int ProductId { get; set; }
-        public string ImageUrl { get; set; } = null!;
-        public string? DescriptionImg { get; set; }
+        public int ID_Image { get; set; }
+        public int ProductID { get; set; }
+        public string ImageURL { get; set; } = null!;
+        public string? DescriptionIMG { get; set; }
     }
 }

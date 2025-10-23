@@ -62,24 +62,36 @@ namespace CosmeticShopAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<OrderDTO>> PostOrder([FromBody] OrderDTO orderDto)
         {
-            var sql = @"
-        INSERT INTO Orders (UserID, OrderDate, TotalAmount, StatusOr, DeliveryAddress, PromoID)
-        VALUES ({0}, {1}, {2}, {3}, {4}, {5});
-        SELECT CAST(SCOPE_IDENTITY() AS int);";
+            try
+            {
+                Console.WriteLine($"Получен заказ: UserId={orderDto.UserId}, TotalAmount={orderDto.TotalAmount}");
 
-            var newId = await _context.Database.ExecuteSqlRawAsync(sql,
-                order.UserID,
-                order.OrderDate,
-                order.TotalAmount,
-                order.StatusOr,
-                order.DeliveryAddress,
-                order.PromoID);
+                var insertSql = @"
+            INSERT INTO Orders (UserID, OrderDate, TotalAmount, StatusOr, DeliveryAddress, PromoID)
+            VALUES ({0}, GETDATE(), {1}, {2}, {3}, {4});
+            SELECT CAST(SCOPE_IDENTITY() AS int);";
 
-            order.Id_Order = newId;
+                var newId = await _context.Database
+                    .SqlQueryRaw<int>(insertSql,
+                        orderDto.UserId,
+                        orderDto.TotalAmount,
+                        orderDto.StatusOr ?? "В обработке",
+                        orderDto.DeliveryAddress,
+                        orderDto.PromoId ?? (object)DBNull.Value)
+                    .FirstOrDefaultAsync();
 
-            return CreatedAtAction(nameof(GetOrder), new { id = order.Id_Order }, order);
+                orderDto.IdOrder = newId;
+
+                Console.WriteLine($"Заказ создан с ID: {newId}");
+                return CreatedAtAction(nameof(GetOrder), new { id = orderDto.IdOrder }, orderDto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при создании заказа: {ex.Message}");
+                return BadRequest($"Ошибка при создании заказа: {ex.Message}");
+            }
         }
 
         [HttpPut("{id}")]
@@ -119,5 +131,7 @@ namespace CosmeticShopAPI.Controllers
 
             return NoContent();
         }
+
+
     }
 }

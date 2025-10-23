@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CosmeticShopAPI.DTOs
 {
@@ -15,5 +12,13 @@ namespace CosmeticShopAPI.DTOs
         public string StatusOr { get; set; } = null!;
         public string? DeliveryAddress { get; set; }
         public int? PromoId { get; set; }
+
+        public string CustomerName { get; set; }
+        public string CustomerEmail { get; set; }
+        public string CustomerPhone { get; set; }
+        public string DeliveryMethod { get; set; }
+        public string PaymentMethod { get; set; }
+        public string Comment { get; set; }
+        public List<OrderDetailDTO> OrderDetails { get; set; } = new List<OrderDetailDTO>();
     }
 }
